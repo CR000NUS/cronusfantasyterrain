@@ -1,4 +1,14 @@
 
+# Fantasy region prototype
+
+Create a new world with the **Fantasy Regions** world type to explore five repeating
+themed regions with mountain borders. This template currently targets Minecraft
+**26.3**, NeoForge **26.3.0.43-beta**, and Java **25**.
+
+See [the region guide](docs/regions.md) for biome placeholders, tuning, and current scope.
+Run `gradlew.bat build` to build and validate the region geometry, or
+`gradlew.bat regionPreview` to generate `build/reports/regions/preview.png`.
+
 Installation information
 =======
 

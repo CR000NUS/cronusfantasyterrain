@@ -1,0 +1,66 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "minecraft:overworld",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "cold_meadows": [
+            "minecraft:meadow",
+            "minecraft:taiga",
+            "minecraft:old_growth_spruce_taiga",
+            "minecraft:grove"
+          ],
+          "crystal_peaks": [
+            "minecraft:stony_shore",
+            "minecraft:windswept_hills",
+            "minecraft:windswept_gravelly_hills",
+            "minecraft:windswept_forest"
+          ],
+          "verdant_valley": [
+            "minecraft:plains",
+            "minecraft:forest",
+            "minecraft:birch_forest",
+            "minecraft:swamp"
+          ],
+          "frozen_wastes": [
+            "minecraft:snowy_plains",
+            "minecraft:ice_spikes",
+            "minecraft:snowy_taiga",
+            "minecraft:frozen_river"
+          ],
+          "mountain_biome": "minecraft:jagged_peaks",
+          "type": "cronusfantasyterrain:regions",
+          "ember_lands": [
+            "minecraft:desert",
+            "minecraft:badlands",
+            "minecraft:wooded_badlands",
+            "minecraft:savanna"
+          ]
+        },
+        "settings": "cronusfantasyterrain:regions"
+      }
+    },
+    "minecraft:the_nether": {
+      "type": "minecraft:the_nether",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "type": "minecraft:multi_noise",
+          "preset": "minecraft:nether"
+        },
+        "settings": "minecraft:nether"
+      }
+    },
+    "minecraft:the_end": {
+      "type": "minecraft:the_end",
+      "generator": {
+        "type": "minecraft:noise",
+        "biome_source": {
+          "type": "minecraft:the_end"
+        },
+        "settings": "minecraft:end"
+      }
+    }
+  }
+}

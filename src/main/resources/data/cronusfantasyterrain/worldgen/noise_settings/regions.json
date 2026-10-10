@@ -1,0 +1,23 @@
+{
+  "default_block": "minecraft:stone",
+  "default_fluid": "minecraft:water",
+  "disable_mob_generation": false,
+  "legacy_random_source": false,
+  "material_rule": "minecraft:overworld",
+  "noise": {
+    "min_y": -64,
+    "height": 384
+  },
+  "noise_router": {
+    "chunk_surface_level": "cronusfantasyterrain:region_height",
+    "continents": 0.0,
+    "depth": 0.0,
+    "erosion": "cronusfantasyterrain:region_border",
+    "final_density": "cronusfantasyterrain:region_terrain",
+    "ridges": 0.0,
+    "temperature": "cronusfantasyterrain:region_id",
+    "vegetation": "cronusfantasyterrain:region_biomes"
+  },
+  "sea_level": 63,
+  "spawn_target": []
+}
