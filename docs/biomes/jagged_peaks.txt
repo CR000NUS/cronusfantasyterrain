@@ -1,0 +1,22 @@
+﻿Jagged Peaks
+Recorded: 2026-10-10
+
+Biome ID: minecraft:jagged_peaks
+Region: Shared borders between region cells.
+Status: Current vanilla border biome, separate from all five interior pools.
+
+Current behavior
+RegionBiomeSource selects this biome where border strength exceeds 0.12.
+The terrain comes from RegionLayout, not from the biome name.
+The alpine belts have connected crests, branching ridges, steep flanks and low gullies. Mountain columns are grounded; dedicated overhang generation is absent.
+The configured belt extends up to 360 blocks on either side of a cell edge before coordinate warping. The biome threshold means this biome does not cover every position with a nonzero border mask.
+Internal biome boundaries do not generate region mountain belts.
+
+User instruction
+The border terrain is accepted. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+
+Sources (relative to repository root)
+docs/regions.md
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionLayout.java
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
+src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json

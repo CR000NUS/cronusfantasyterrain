@@ -1,0 +1,36 @@
+﻿Verdant Valley
+Recorded: 2026-10-10
+
+Status: Existing region theme in Fantasy Regions.
+Preset key: verdant_valley
+Region index: 3
+
+Known theme
+Grassy, wooded and swamp areas, inferred from the placeholder pool. A dedicated valley shape is not implemented.
+
+Current biome pool (vanilla placeholders)
+- minecraft:plains
+- minecraft:forest
+- minecraft:birch_forest
+- minecraft:swamp
+
+Current generation
+Seeded, irregular regions repeat across the infinite Overworld, approximately 3,072 blocks across. No fixed continent or compass position is assigned.
+Local biome noise selects only from the region's pool. Each pool currently has four entries; the source accepts four or five.
+Interiors share gentle terrain around Y=75-85. Custom biome terrain is not implemented.
+Region boundaries share the existing alpine mountain belts and Jagged Peaks biome. Internal biome boundaries do not generate these belts.
+RegionBiomeSource.java maps this theme to pool index 3.
+
+Design details still missing
+Final custom biome names, terrain, vegetation, structures, mobs and other region-specific features are not fully specified in the available files.
+The vanilla pool is a set of placeholders, not a confirmed final fantasy biome design.
+
+Border instruction
+The user accepted the border terrain on 2026-10-10. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+
+Sources (relative to repository root)
+docs/regions.md
+src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionLayout.java
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
+

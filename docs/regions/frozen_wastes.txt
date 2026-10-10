@@ -1,0 +1,36 @@
+﻿Frozen Wastes
+Recorded: 2026-10-10
+
+Status: Existing region theme in Fantasy Regions.
+Preset key: frozen_wastes
+Region index: 0
+
+Known theme
+Frozen landscape. Ice Desert is an earlier terrain concept associated with this region, outside the current biome pool.
+
+Current biome pool (vanilla placeholders)
+- minecraft:snowy_plains
+- minecraft:ice_spikes
+- minecraft:snowy_taiga
+- minecraft:frozen_river
+
+Current generation
+Seeded, irregular regions repeat across the infinite Overworld, approximately 3,072 blocks across. No fixed continent or compass position is assigned.
+Local biome noise selects only from the region's pool. Each pool currently has four entries; the source accepts four or five.
+Interiors share gentle terrain around Y=75-85. Custom biome terrain is not implemented.
+Region boundaries share the existing alpine mountain belts and Jagged Peaks biome. Internal biome boundaries do not generate these belts.
+FrozenLand.java declares NAME = "Frozen Wastes" and REGION_INDEX = 0; the preset defines its actual biome pool.
+
+Design details still missing
+Final custom biome names, terrain, vegetation, structures, mobs and other region-specific features are not fully specified in the available files.
+The vanilla pool is a set of placeholders, not a confirmed final fantasy biome design.
+
+Border instruction
+The user accepted the border terrain on 2026-10-10. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+
+Sources (relative to repository root)
+docs/regions.md
+src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionLayout.java
+src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
+src/main/java/c/cronus/fantasyterrain/FrozenLand.java

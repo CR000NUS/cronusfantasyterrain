@@ -1,0 +1,31 @@
+﻿Documentation notes and standing decisions
+Recorded: 2026-10-10
+
+Border terrain decision
+The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
+Keep this restriction in effect for future work. This documentation task does not change world generation.
+
+Documentation layout
+docs/regions: One text file per known region.
+docs/biomes: One text file per current placeholder, plus the shared border biome and the earlier Ice Desert concept.
+docs/extra: Shared notes and decisions.
+docs/regions.md: Existing technical guide, retained.
+
+Evidence and scope
+These notes use the current user message, existing documentation and repository files. Earlier conversation messages are not visible in this session.
+Five region themes are documented: Frozen Wastes, Cold Meadows, Ember Lands, Verdant Valley and Crystal Peaks.
+Twenty vanilla interior biome placeholders are configured, plus Jagged Peaks for borders.
+Ice Desert is an earlier terrain concept, not a current custom biome.
+Theme descriptions inferred from names and pools are marked as such; missing designs remain unspecified.
+
+Current project scope
+Choose Fantasy Regions when creating a new world. Installing the mod does not switch existing worlds automatically.
+Regions repeat throughout an infinite world; there is no fixed continent.
+The existing guide reports no custom biome terrain, custom cave biome selection, deliberate mountain pass system or ocean coastline.
+The Nether and End use vanilla generation.
+The project files record Minecraft 26.3, NeoForge 26.3.0.43-beta and Java 25.
+
+Maintenance
+Update these files when the user supplies or changes region and biome designs.
+Distinguish planned ideas, vanilla placeholders and implemented custom features.
+All source paths are relative to the repository root.
