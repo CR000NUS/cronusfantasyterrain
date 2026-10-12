@@ -1,8 +1,11 @@
-﻿Ember Lands
+﻿Scorched Lands
 Recorded: 2026-10-10
+Updated: 2026-10-12
+
+Previous name: Ember Lands. Renamed to Scorched Lands by the user on 2026-10-12.
 
 Status: Existing region theme in Fantasy Regions.
-Preset key: ember_lands
+Current implementation preset key: ember_lands (retained in code and data; this rename changes documentation only).
 Region index: 2
 
 Known theme

@@ -1,5 +1,6 @@
 ﻿Documentation notes and standing decisions
 Recorded: 2026-10-10
+Updated: 2026-10-12
 
 Border terrain decision
 The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
@@ -7,15 +8,18 @@ Keep this restriction in effect for future work. This documentation task does no
 
 Documentation layout
 docs/regions: One text file per known region.
-docs/biomes: One text file per current placeholder, plus the shared border biome and the earlier Ice Desert concept.
+docs/biomes: One text file per current placeholder, plus the shared border biome, the earlier Ice Desert concept and planned custom biomes.
 docs/extra: Shared notes and decisions.
 docs/regions.md: Existing technical guide, retained.
 
 Evidence and scope
 These notes use the current user message, existing documentation and repository files. Earlier conversation messages are not visible in this session.
-Five region themes are documented: Frozen Wastes, Cold Meadows, Ember Lands, Verdant Valley and Crystal Peaks.
+Eleven regions are documented: Blooming Highlands, Cold Meadows, Crystal Peaks, Dry Dunes, Enchanted Groves, Frozen Wastes, Land of the Giants, Misty Marshes, Scorched Lands, Shadow Wilds and Verdant Valley.
+Scorched Lands was previously called Ember Lands. Its implementation key remains ember_lands; the rename is documentation only.
+The current generator still contains five region themes: Frozen Wastes, Cold Meadows, Scorched Lands (implementation key ember_lands), Verdant Valley and Crystal Peaks. The six additional regions are planned and have no assigned biome pools yet.
 Twenty vanilla interior biome placeholders are configured, plus Jagged Peaks for borders.
 Ice Desert is an earlier terrain concept, not a current custom biome.
+Frostscar is a planned custom biome for Frozen Wastes, documented from the user's design on 2026-10-12. It is not yet implemented.
 Theme descriptions inferred from names and pools are marked as such; missing designs remain unspecified.
 
 Current project scope

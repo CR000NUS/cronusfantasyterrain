@@ -1,8 +1,30 @@
-# Region foundation
+﻿# Region foundation
 
 This project targets **Minecraft 26.3**, **NeoForge 26.3.0.43-beta**, and **Java 25**, as configured in `gradle.properties` and `build.gradle`.
 
 Create a **new world**, choose **Fantasy Regions** in the World Type selector, and generate the world. Installing the mod does not switch the world type of existing saves. Dedicated servers can select `level-type=cronusfantasyterrain:regions` before generating a new world. The earlier Test World preset remains available.
+
+## Current region list
+
+The user confirmed these eleven regions on 2026-10-12. Each has a text file in `docs/regions/`. New region names are documented as plans; their terrain and biome details have not yet been specified.
+
+| Region | Documentation | Implementation status |
+| --- | --- | --- |
+| Blooming Highlands | [Details](regions/blooming_highlands.txt) | Planned |
+| Cold Meadows | [Details](regions/cold_meadows.txt) | Existing theme with placeholders |
+| Crystal Peaks | [Details](regions/crystal_peaks.txt) | Existing theme with placeholders |
+| Dry Dunes | [Details](regions/dry_dunes.txt) | Planned |
+| Enchanted Groves | [Details](regions/enchanted_groves.txt) | Planned |
+| Frozen Wastes | [Details](regions/frozen_wastes.txt) | Existing theme with placeholders; Frostscar is planned |
+| Land of the Giants | [Details](regions/land_of_the_giants.txt) | Planned |
+| Misty Marshes | [Details](regions/misty_marshes.txt) | Planned |
+| Scorched Lands | [Details](regions/scorched_lands.txt) | Existing theme with placeholders; previously Ember Lands |
+| Shadow Wilds | [Details](regions/shadow_wilds.txt) | Planned |
+| Verdant Valley | [Details](regions/verdant_valley.txt) | Existing theme with placeholders |
+
+Scorched Lands replaces the name Ember Lands in documentation. Its current code/data key remains `ember_lands`. The generator still contains five region themes; this documentation update does not add regions to generation.
+
+The user accepted the border terrain on 2026-10-10. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
 
 ## Current behavior
 
@@ -14,11 +36,11 @@ Each region owns a pool of four vanilla placeholder biomes. The local biome nois
 | --- | --- |
 | Frozen Wastes | Snowy Plains, Ice Spikes, Snowy Taiga, Frozen River |
 | Cold Meadows | Meadow, Taiga, Old Growth Spruce Taiga, Grove |
-| Ember Lands | Desert, Badlands, Wooded Badlands, Savanna |
+| Scorched Lands | Desert, Badlands, Wooded Badlands, Savanna |
 | Verdant Valley | Plains, Forest, Birch Forest, Swamp |
 | Crystal Peaks | Stony Shore, Windswept Hills, Windswept Gravelly Hills, Windswept Forest |
 
-These are placeholders, not finished fantasy biomes. A Frozen River placeholder does not carve a river; a Windswept Hills placeholder does not shape hills. Biome surfaces, vegetation, mobs, structures, and carvers still use vanilla biome behavior. All interiors currently share gentle terrain around Y=75–85. Border belts extend up to 360 blocks on either side of a cell edge (roughly 720 blocks wide before coordinate warping).
+These are placeholders, not finished fantasy biomes. A Frozen River placeholder does not carve a river; a Windswept Hills placeholder does not shape hills. Biome surfaces, vegetation, mobs, structures, and carvers still use vanilla biome behavior. All interiors currently share gentle terrain around Y=75â€“85. Border belts extend up to 360 blocks on either side of a cell edge (roughly 720 blocks wide before coordinate warping).
 
 Borders follow the alpine references: connected main crests, smaller branching ridges, steep triangular flanks, and erosion-like gullies between them. A warped ridged multifractal uses four scales (280, 140, 70, and 35 blocks). Each smaller scale is weighted by the preceding ridge, so detail follows the mountain network rather than appearing independently throughout the terrain. Broad bases support sharp crests, while the shared region mask confines the range to the border belt. Successive detail scales retain 43% of the previous amplitude, slightly softening the finest ridges.
 

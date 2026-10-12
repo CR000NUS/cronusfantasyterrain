@@ -1,5 +1,6 @@
 ﻿Frozen Wastes
 Recorded: 2026-10-10
+Updated: 2026-10-12
 
 Status: Existing region theme in Fantasy Regions.
 Preset key: frozen_wastes
@@ -13,6 +14,9 @@ Current biome pool (vanilla placeholders)
 - minecraft:ice_spikes
 - minecraft:snowy_taiga
 - minecraft:frozen_river
+
+Planned custom biomes
+- Frostscar: Large height differences with valleys, canyons, cliffs and steep mountains. Mostly deepslate covered by snow layers, with some glacier areas made of ice and snow. See docs/biomes/frostscar.txt. Documented concept; not yet implemented or added to the current pool.
 
 Current generation
 Seeded, irregular regions repeat across the infinite Overworld, approximately 3,072 blocks across. No fixed continent or compass position is assigned.
@@ -34,3 +38,5 @@ src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json
 src/main/java/c/cronus/fantasyterrain/worldgen/RegionLayout.java
 src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
 src/main/java/c/cronus/fantasyterrain/FrozenLand.java
+docs/biomes/frostscar.txt
+User-provided Frostscar design on 2026-10-12.

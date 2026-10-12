@@ -1,0 +1,22 @@
+﻿Misty Marshes
+Recorded: 2026-10-12
+
+Status: Planned region, included in the user's current region list.
+Implementation: Not yet part of the current Fantasy Regions world preset.
+Preset key and region index: Not yet assigned.
+
+Known design
+The region name is confirmed. Terrain, materials, climate and other design details have not yet been specified.
+
+Biomes
+No biome names or assignments have been specified for this region.
+
+Design details still missing
+Region terrain, biome pool, vegetation, structures and mobs remain to be defined.
+
+Border instruction
+The accepted region border terrain remains unchanged. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+
+Sources
+User-provided region list on 2026-10-12.
+docs/regions.md

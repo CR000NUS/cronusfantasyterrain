@@ -2,7 +2,7 @@
 Recorded: 2026-10-10
 
 Biome ID: minecraft:savanna
-Region: Ember Lands
+Region: Scorched Lands
 Status: Vanilla placeholder in the current Fantasy Regions preset.
 
 Known role
