@@ -29,7 +29,7 @@
             "minecraft:snowy_taiga",
             "minecraft:frozen_river"
           ],
-          "mountain_biome": "minecraft:jagged_peaks",
+          "mountain_biome": "cronusfantasyterrain:region_border",
           "type": "cronusfantasyterrain:regions",
           "ember_lands": [
             "minecraft:desert",

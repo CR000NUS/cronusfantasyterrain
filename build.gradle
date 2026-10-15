@@ -181,6 +181,36 @@ tasks.register('regionLayoutTest', JavaExec) {
     mainClass = 'c.cronus.fantasyterrain.worldgen.RegionLayoutTest'
 }
 tasks.named('check') { dependsOn tasks.named('regionLayoutTest') }
+tasks.register('borderPaletteTest', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.BorderPaletteTest'
+}
+tasks.named('check') { dependsOn tasks.named('borderPaletteTest') }
+tasks.register('borderFeatureTest') {
+    def resourceRoot = layout.projectDirectory.dir('src/main/resources/data/cronusfantasyterrain/worldgen')
+    inputs.dir(resourceRoot)
+    doLast {
+        def parser = new groovy.json.JsonSlurper()
+        def biome = parser.parse(resourceRoot.file('biome/region_border.json').asFile)
+        def placements = biome.features.flatten()
+        assert !placements.isEmpty(): 'Underground ores must remain available'
+        placements.each { id ->
+            assert id.startsWith('cronusfantasyterrain:border/ore_'): "Forbidden border decoration: $id"
+            def placed = parser.parse(resourceRoot.file('placed_feature/' + id.split(':')[1] + '.json').asFile)
+            def ore = parser.parse(resourceRoot.file('feature/' + placed.feature.split(':')[1] + '.json').asFile)
+            assert ore.discard_chance_on_air_exposure == 1.0: 'Exposed outdoor rock must not become ore'
+            ore.targets.each { target ->
+                assert target.state.startsWith('minecraft:deepslate_') && target.state.endsWith('_ore'):
+                        "Forbidden ore block: $target.state"
+                assert target.target.rules*.block.toSet() == ['minecraft:deepslate', 'minecraft:tuff'].toSet():
+                        'Ore targets must only replace underground host rocks'
+            }
+        }
+        logger.lifecycle("Border feature whitelist passed; ${placements.size()} deepslate ore placements.")
+    }
+}
+tasks.named('check') { dependsOn tasks.named('borderFeatureTest') }
 // Geometry checks use a standalone main rather than a JUnit test engine.
 tasks.named('test', Test) { failOnNoDiscoveredTests = false }
 

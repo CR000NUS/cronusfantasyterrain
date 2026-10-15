@@ -1,42 +1,36 @@
-﻿Frozen Wastes
+Frozen Wastes
 Recorded: 2026-10-10
-Updated: 2026-10-12
+Updated: 2026-10-15
 
-Status: Existing region theme in Fantasy Regions.
+Status: Implemented theme with vanilla placeholder biomes.
 Preset key: frozen_wastes
 Region index: 0
 
-Known theme
-Frozen landscape. Ice Desert is an earlier terrain concept associated with this region, outside the current biome pool.
+Theme
+Frozen landscape. FrozenLand.java declares NAME = "Frozen Wastes" and REGION_INDEX = 0.
 
-Current biome pool (vanilla placeholders)
+Biome pool (vanilla placeholders)
 - minecraft:snowy_plains
 - minecraft:ice_spikes
 - minecraft:snowy_taiga
 - minecraft:frozen_river
 
 Planned custom biomes
-- Frostscar: Large height differences with valleys, canyons, cliffs and steep mountains. Mostly deepslate covered by snow layers, with some glacier areas made of ice and snow. See docs/biomes/frostscar.txt. Documented concept; not yet implemented or added to the current pool.
+- Frostscar: large height differences with valleys, canyons, cliffs and steep mountains; mostly deepslate under snow, with ice-and-snow glaciers. Design only; see docs/biomes/frostscar.txt.
+
+Earlier concepts
+- Ice Desert: Test World terrain prototype, not a biome. See docs/biomes/ice_desert.txt.
 
 Current generation
-Seeded, irregular regions repeat across the infinite Overworld, approximately 3,072 blocks across. No fixed continent or compass position is assigned.
-Local biome noise selects only from the region's pool. Each pool currently has four entries; the source accepts four or five.
-Interiors share gentle terrain around Y=75-85. Custom biome terrain is not implemented.
-Region boundaries share the existing alpine mountain belts and Jagged Peaks biome. Internal biome boundaries do not generate these belts.
-FrozenLand.java declares NAME = "Frozen Wastes" and REGION_INDEX = 0; the preset defines its actual biome pool.
+Standard region behavior (see docs/regions.md): seeded regions about 3,072 blocks across, interior terrain around Y=75-85, shared Region Border mountains at region edges. No region-specific terrain, vegetation, structures or mobs yet.
 
-Design details still missing
-Final custom biome names, terrain, vegetation, structures, mobs and other region-specific features are not fully specified in the available files.
-The vanilla pool is a set of placeholders, not a confirmed final fantasy biome design.
+Still to design
+Final custom biomes, terrain, vegetation, structures and mobs.
 
-Border instruction
-The user accepted the border terrain on 2026-10-10. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+Border mountains are shared by all regions and frozen; see docs/extra/project_notes.txt.
 
 Sources (relative to repository root)
-docs/regions.md
 src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json
-src/main/java/c/cronus/fantasyterrain/worldgen/RegionLayout.java
 src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
+docs/regions.md
 src/main/java/c/cronus/fantasyterrain/FrozenLand.java
-docs/biomes/frostscar.txt
-User-provided Frostscar design on 2026-10-12.

@@ -1,38 +1,38 @@
-﻿# Region foundation
+# Fantasy Regions technical guide
 
-This project targets **Minecraft 26.3**, **NeoForge 26.3.0.43-beta**, and **Java 25**, as configured in `gradle.properties` and `build.gradle`.
+Targets **Minecraft 26.3**, **NeoForge 26.3.0.43-beta** and **Java 25** (see `gradle.properties`).
 
-Create a **new world**, choose **Fantasy Regions** in the World Type selector, and generate the world. Installing the mod does not switch the world type of existing saves. Dedicated servers can select `level-type=cronusfantasyterrain:regions` before generating a new world. The earlier Test World preset remains available.
+Create a **new world** and choose **Fantasy Regions** as the World Type. Installing the mod does not change existing saves. Dedicated servers can set `level-type=cronusfantasyterrain:regions` before the world is first generated. The earlier Test World preset is still available.
 
-## Current region list
+Standing decisions and their history are in [`extra/project_notes.txt`](extra/project_notes.txt). **The border mountain shape is frozen**: do not change it unless the user asks, and tell them before any change that seems necessary.
 
-The user confirmed these eleven regions on 2026-10-12. Each has a text file in `docs/regions/`. New region names are documented as plans; their terrain and biome details have not yet been specified.
+## Regions
 
-| Region | Documentation | Implementation status |
-| --- | --- | --- |
-| Blooming Highlands | [Details](regions/blooming_highlands.txt) | Planned |
-| Cold Meadows | [Details](regions/cold_meadows.txt) | Existing theme with placeholders |
-| Crystal Peaks | [Details](regions/crystal_peaks.txt) | Existing theme with placeholders |
-| Dry Dunes | [Details](regions/dry_dunes.txt) | Planned |
-| Enchanted Groves | [Details](regions/enchanted_groves.txt) | Planned |
-| Frozen Wastes | [Details](regions/frozen_wastes.txt) | Existing theme with placeholders; Frostscar is planned |
-| Land of the Giants | [Details](regions/land_of_the_giants.txt) | Planned |
-| Misty Marshes | [Details](regions/misty_marshes.txt) | Planned |
-| Scorched Lands | [Details](regions/scorched_lands.txt) | Existing theme with placeholders; previously Ember Lands |
-| Shadow Wilds | [Details](regions/shadow_wilds.txt) | Planned |
-| Verdant Valley | [Details](regions/verdant_valley.txt) | Existing theme with placeholders |
+The user confirmed eleven regions on 2026-10-12. Five are generated; six are planned and have names only.
 
-Scorched Lands replaces the name Ember Lands in documentation. Its current code/data key remains `ember_lands`. The generator still contains five region themes; this documentation update does not add regions to generation.
+| Region | Key | Index | Status |
+| --- | --- | --- | --- |
+| [Frozen Wastes](regions/frozen_wastes.txt) | `frozen_wastes` | 0 | Generated, vanilla placeholders; Frostscar planned |
+| [Cold Meadows](regions/cold_meadows.txt) | `cold_meadows` | 1 | Generated, vanilla placeholders |
+| [Scorched Lands](regions/scorched_lands.txt) | `ember_lands` | 2 | Generated, vanilla placeholders; formerly Ember Lands |
+| [Verdant Valley](regions/verdant_valley.txt) | `verdant_valley` | 3 | Generated, vanilla placeholders |
+| [Crystal Peaks](regions/crystal_peaks.txt) | `crystal_peaks` | 4 | Generated, vanilla placeholders |
+| [Blooming Highlands](regions/blooming_highlands.txt) | – | – | Planned |
+| [Dry Dunes](regions/dry_dunes.txt) | – | – | Planned |
+| [Enchanted Groves](regions/enchanted_groves.txt) | – | – | Planned |
+| [Land of the Giants](regions/land_of_the_giants.txt) | – | – | Planned |
+| [Misty Marshes](regions/misty_marshes.txt) | – | – | Planned |
+| [Shadow Wilds](regions/shadow_wilds.txt) | – | – | Planned |
 
-The user accepted the border terrain on 2026-10-10. Do not change it unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+The Scorched Lands rename is documentation only; code and data still use `ember_lands`.
 
-## Current behavior
+## Layout and biomes
 
-The infinite Overworld contains large, seeded, irregular regions, each roughly 3,072 blocks across. Five themes repeat throughout the world. This interprets the sketch as a layout concept rather than one fixed continent with exact compass positions.
+The infinite Overworld is split into large, seeded, irregular regions about 3,072 blocks across. The five generated themes repeat throughout the world; there is no fixed continent or compass position. (The original sketch is treated as a layout concept, not a fixed map.)
 
-Each region owns a pool of four vanilla placeholder biomes. The local biome noise selects only from that pool. Rugged mountain and canyon belts occupy region boundaries and use jagged peaks as a shared border biome. Border terrain and region ownership come from the same seeded geometry, including at negative coordinates. Internal biome boundaries never create region mountains.
+Each region has a pool of four vanilla placeholder biomes (the codec accepts four or five), and local biome noise picks only from that pool:
 
-| Region | Temporary biome pool |
+| Region | Placeholder pool |
 | --- | --- |
 | Frozen Wastes | Snowy Plains, Ice Spikes, Snowy Taiga, Frozen River |
 | Cold Meadows | Meadow, Taiga, Old Growth Spruce Taiga, Grove |
@@ -40,38 +40,70 @@ Each region owns a pool of four vanilla placeholder biomes. The local biome nois
 | Verdant Valley | Plains, Forest, Birch Forest, Swamp |
 | Crystal Peaks | Stony Shore, Windswept Hills, Windswept Gravelly Hills, Windswept Forest |
 
-These are placeholders, not finished fantasy biomes. A Frozen River placeholder does not carve a river; a Windswept Hills placeholder does not shape hills. Biome surfaces, vegetation, mobs, structures, and carvers still use vanilla biome behavior. All interiors currently share gentle terrain around Y=75â€“85. Border belts extend up to 360 blocks on either side of a cell edge (roughly 720 blocks wide before coordinate warping).
+Placeholders keep vanilla surfaces, vegetation, mobs, structures and carvers, but they do **not** shape terrain: Frozen River carves no river and Windswept Hills makes no hills. All region interiors share gentle terrain around Y=75–85.
 
-Borders follow the alpine references: connected main crests, smaller branching ridges, steep triangular flanks, and erosion-like gullies between them. A warped ridged multifractal uses four scales (280, 140, 70, and 35 blocks). Each smaller scale is weighted by the preceding ridge, so detail follows the mountain network rather than appearing independently throughout the terrain. Broad bases support sharp crests, while the shared region mask confines the range to the border belt. Successive detail scales retain 43% of the previous amplitude, slightly softening the finest ridges.
+Region edges use the custom [Region Border](biomes/region_border.txt) biome wherever the border mask exceeds 0.12. Internal biome boundaries never create mountains.
 
-This replaces the previous strong 3D displacement and geometric cavity experiments. Mountain columns are solid below their surface, so they cannot produce detached rock slabs, floating islands, or cutout-shaped cave mouths. The emphasis is now the simple, grounded, vein-like mountain structure shown in the reference photographs. Dedicated overhang generation is absent in this version.
+## Border mountains
 
-The mountain profile ranges approximately from Y=28 to Y=305, with the neutral region interiors remaining around Y=75?85. Low gullies form deep valleys between ridges; portions below Y=63 fill with water. Border shape remains seeded and independent of biome ownership and chunk order.
+### Terrain (frozen)
 
-There is no fixed continent, ocean coastline, custom biome terrain, custom cave biome selection, or deliberate mountain pass system yet. The Nether and End use vanilla generation. Biome-specific rock formations and carefully constrained overhangs remain future work.
+- Belts extend up to 360 blocks either side of a region edge (about 720 blocks wide before coordinate warping).
+- The shape follows alpine references: connected main crests, smaller branching ridges, steep triangular flanks and erosion-like gullies.
+- A warped ridged multifractal uses four scales (280, 140, 70 and 35 blocks). Each smaller scale is weighted by the ridge above it, so detail follows the mountain network, and keeps 43% of the previous amplitude.
+- Heights range from about Y=28 to Y=305. Gullies below Y=63 fill with water.
+- Columns are solid below their surface: no floating slabs, detached rock or overhangs.
+- Border terrain and region ownership come from the same seeded geometry, independent of biome and chunk order, including at negative coordinates.
 
-## Where to extend it
+### Materials
 
-- `RegionLayout.java` owns the horizontal region partition and a continuous mountain mask. It knows nothing about biome types.
-- `RegionFunction.java` exposes region ID, border mask, surface height, and three-dimensional density to Minecraft's sampler. Each view derives its seed using the same namespaced random source, independently of chunk generation order. Density volumes compute one terrain column per X/Z position, then sample its rock geometry at each Y.
-- `RegionBiomeSource.java` reads region ID from the router's temperature channel, border strength from erosion, and local biome noise from vegetation. These are dedicated data channels for this preset, not vanilla climate values.
-- `world_preset/regions.json` defines each region's allowed biomes. Replace placeholder IDs with registered custom biomes as they are developed. Each pool accepts four or five entries.
-- `density_function/region_id.json`, `region_border.json`, `region_height.json`, and `region_terrain.json` contain `region_size` and `border_width`. Keep those values identical across all four files so terrain and ownership stay aligned. Parameters are saved in world generation data; changing them can create seams in previously generated worlds, so test changes in a fresh world.
-- `density_function/region_terrain.json` selects the custom `density` output, which combines interior relief, the grounded alpine ridge network and intervening valleys. Later biome terrain can feed into this layer without turning regions themselves into biome terrain definitions.
-- `noise/region_biomes.json` controls local biome patch scale, independently of region size.
+`noise_settings/regions.json` selects `material_rule/regions.json`, which keeps the bedrock floor, applies `material_rule/region_border.json` inside the border biome, and otherwise uses vanilla Overworld materials.
 
-The original `FrozenLand.java` now identifies the Frozen Wastes region. Its actual allowed biome pool is data driven in the world preset.
+- Exposed faces below Y=220: blackstone.
+- Exposed faces at and above Y=220: a continuous snow cap, including steep faces, forming a band across the peaks.
+- Buried rock and cave walls: deepslate with about 4% tuff patches, plus deepslate ores.
+- No exterior stone, deepslate, tuff, ore or random patches.
+
+`BorderMaterialRule` and `BorderPalette` choose the material. The `border_exterior_floor` density output (lowest neighboring surface) separates outdoor cliff faces from buried rock; it is a material channel only and does not change height or density.
+
+### Features and cleanup
+
+- The border biome keeps only custom ore placements: vanilla frequencies and heights, deepslate variants, replacing only deepslate/tuff, and discarded when exposed to air.
+- No dirt, gravel, granite, diorite, andesite, sediment disks, geodes, dungeons, lakes, springs or vegetation.
+- The biome is temperate (temperature 0.8, downfall 0.3) with no `freeze_top_layer`, so lower slopes are not blanketed in snow.
+- `BorderChunkMaterials` repaints newly generated chunks after neighboring features spill in, keeping cave air, fluids and approved ores. It never rewrites old saved chunks.
+
+## Code map
+
+- `RegionLayout.java` – pure Java. Owns the region partition, the border mask and the terrain column (surface height and density). Knows nothing about biomes.
+- `RegionFunction.java` – exposes region ID, border mask, surface height, density and exterior floor to Minecraft. All outputs derive their seed from the same namespaced random source, so they agree regardless of chunk order.
+- `RegionBiomeSource.java` – reads region ID from the router's temperature channel, border strength from erosion and local biome noise from vegetation. These channels carry region data, not vanilla climate values.
+- `world_preset/regions.json` – each region's biome pool. Replace placeholder IDs with custom biomes as they are built.
+- `density_function/region_id.json`, `region_border.json`, `region_height.json`, `region_terrain.json` – all contain `region_size` (3072) and `border_width` (360). **Keep them identical** or terrain and ownership desynchronize.
+- `density_function/region_terrain.json` – selects the `density` output (interior relief, alpine ridges and valleys). Future biome terrain can feed into this layer.
+- `noise/region_biomes.json` – local biome patch scale, independent of region size.
+- `FrozenLand.java` – identifies Frozen Wastes (`REGION_INDEX = 0`); its pool is data-driven in the preset.
+
+Generation parameters are saved into each world. Changing them can cause seams in existing worlds, so always test in a **fresh** Fantasy Regions world.
 
 ## Verification
 
-Run `gradlew.bat build` to compile, package, and check seeded region geometry. The standalone `regionLayoutTest` checks 30,000 positions, all themes, seed variation, negative coordinates, neutral interiors, floor/ceiling bounds, and terrain continuity where ownership changes. It checks tall crests, steep flanks, nearby elevation drops, broad low valleys, and grounded geometry without solid rock above air gaps. The thin-spine check samples actual topmost solid voxels and nearby columns. These are sampled checks, not exhaustive guarantees of visual quality across an infinite world.
+- `gradlew.bat build` compiles, packages and runs all checks:
+  - `regionLayoutTest` – 30,000 sampled positions: all themes, seed variation, negative coordinates, neutral interiors, floor/ceiling bounds, continuity across ownership changes, tall crests, steep flanks, broad valleys, thin spines and no solid rock above air gaps.
+  - `borderPaletteTest` – the blackstone/snow-line/deepslate palette.
+  - `borderFeatureTest` – the border biome's ore-only feature whitelist.
+- `gradlew.bat runGameTestServer` loads the worldgen data and runs game tests; its flat world does not show Fantasy Regions terrain. Use an isolated game directory if mods in `run/mods` interfere.
+- `gradlew.bat regionPreview` writes software previews (layout seed 12345; Minecraft derives its layout seed from the world seed):
+  - `build/reports/regions/preview.png` – region themes and border belts.
+  - `build/reports/regions/border-terrain.png` – shaded ridge surface with a vertical section.
+  - `build/reports/regions/border-volume.png` – isometric solid/air voxels (6 blocks horizontal, 4 vertical).
 
-`gradlew.bat runGameTestServer` loads the worldgen datapacks and runs available game tests; its default flat world does not visually verify Fantasy Regions terrain. Use an isolated game directory if mods in `run/mods` interfere.
+The tests sample; they do not guarantee visual quality everywhere, and previews omit materials, decorations and lighting. Always check in a fresh Minecraft world.
 
-Run `gradlew.bat regionPreview` to export the following algorithm illustrations:
+## Not yet implemented
 
-- `build/reports/regions/preview.png`: region themes and border belts.
-- `build/reports/regions/border-terrain.png`: shaded density surface showing branching ridge crests, with a vertical section.
-- `build/reports/regions/border-volume.png`: an isometric rendering of actual solid/air geometry, sampled at six blocks horizontally and four vertically.
-
-These are software previews, not Minecraft screenshots. They use layout seed 12345; Minecraft derives the layout seed from the chosen world seed. The voxel rendering is coarse and omits Minecraft materials, decorations, and lighting. Visual evaluation in a fresh Minecraft world remains necessary.
+- Custom biomes for region interiors (Frostscar is the first design).
+- Region-specific or biome-specific terrain, rock formations and constrained overhangs.
+- The six planned regions.
+- Custom cave biomes, mountain passes, oceans and coastlines.
+- Custom Nether or End generation.

@@ -1,20 +1,18 @@
-﻿Ice Desert
+Ice Desert
 Recorded: 2026-10-10
 
-Associated region: Frozen Wastes, based on the earlier test terrain resources.
-Status: Earlier terrain concept/prototype. Not a registered custom biome or an entry in the current Fantasy Regions pools.
+Biome ID: None (not a registered biome).
+Region: Frozen Wastes (by association).
+Status: Earlier terrain prototype from the Test World preset. Not part of Fantasy Regions.
 
-Implementation evidence
-test_terrain.json selects ice_desert_terrain when frozen_wastes_region noise is at least -0.1.
-ice_desert_terrain.json combines a vertical density gradient from Y=58 to Y=98 with horizontal ice_desert_relief noise multiplied by 0.25.
-The gradient alone crosses zero at Y=78; the noise adds gentle relief.
-ice_desert_relief.json uses base octave -8 and three octaves.
-These resources belong to the earlier Test World path, which uses minecraft:plains as its fixed biome. The terrain resource does not by itself supply an icy surface, weather or vegetation.
-Fantasy Regions uses the shared region terrain instead.
+What exists
+- test_terrain.json uses ice_desert_terrain where frozen_wastes_region noise is at least -0.1.
+- ice_desert_terrain.json is a vertical density gradient from Y=58 to Y=98 (zero crossing at Y=78) plus ice_desert_relief noise scaled by 0.25 for gentle relief.
+- ice_desert_relief.json uses base octave -8 and three octaves.
+- The Test World uses minecraft:plains everywhere, so this prototype has no icy surface, weather or vegetation.
 
-Design details still missing
-The available files do not specify a final custom biome ID, exact ice/snow materials, vegetation, structures or mobs.
-Earlier conversation details are not visible in this session.
+Still to design
+Whether this becomes a custom biome; if so, its ID, ice/snow materials, vegetation, structures and mobs.
 
 Sources (relative to repository root)
 src/main/resources/data/cronusfantasyterrain/worldgen/density_function/test_terrain.json

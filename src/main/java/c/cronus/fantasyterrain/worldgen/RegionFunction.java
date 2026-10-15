@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.densityfunction.*;
 
 /** Shared world-seeded layout, including three-dimensional border rock density. */
 public record RegionFunction(int regionSize, int borderWidth, Output output) implements DensityFunction {
-    public enum Output { REGION, BORDER, HEIGHT, DENSITY }
+    public enum Output { REGION, BORDER, HEIGHT, DENSITY, EXTERIOR_FLOOR }
     public static final MapCodec<RegionFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3072).forGetter(RegionFunction::regionSize),
             Codec.intRange(32, 512).optionalFieldOf("border_width", 360).forGetter(RegionFunction::borderWidth),
@@ -18,7 +18,7 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
                         try {
                             return DataResult.success(Output.valueOf(s.toUpperCase(java.util.Locale.ROOT)));
                         } catch (IllegalArgumentException exception) {
-                            return DataResult.error(() -> "Unknown region output '" + s + "'; expected region, border, height, or density");
+                            return DataResult.error(() -> "Unknown region output '" + s + "'; expected region, border, height, density, or exterior_floor");
                         }
                     },
                     o -> o.name().toLowerCase(java.util.Locale.ROOT)).fieldOf("output").forGetter(RegionFunction::output)
@@ -40,6 +40,16 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
                         yield column.upperBound();
                     }
                     case DENSITY -> layout.terrainColumn(x, z, sample).density(y);
+                    // Lowest adjacent column determines which blocks form an outdoor cliff face.
+                    // This is a material classification only; the terrain density stays unchanged.
+                    case EXTERIOR_FLOOR -> {
+                        float lowest = layout.surfaceHeight(x, z, sample);
+                        lowest = Math.min(lowest, layout.surfaceHeight(x - 1, z, layout.sample(x - 1, z)));
+                        lowest = Math.min(lowest, layout.surfaceHeight(x + 1, z, layout.sample(x + 1, z)));
+                        lowest = Math.min(lowest, layout.surfaceHeight(x, z - 1, layout.sample(x, z - 1)));
+                        lowest = Math.min(lowest, layout.surfaceHeight(x, z + 1, layout.sample(x, z + 1)));
+                        yield (float) Math.ceil(lowest);
+                    }
                 };
             }
 
@@ -68,7 +78,7 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
         return switch (output) {
             case REGION -> Interval.of(0, 4);
             case BORDER -> Interval.of(0, 1);
-            case HEIGHT -> Interval.of(8, 310);
+            case HEIGHT, EXTERIOR_FLOOR -> Interval.of(8, 310);
             case DENSITY -> Interval.of(-16, 16);
         };
     }

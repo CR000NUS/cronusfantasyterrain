@@ -1,24 +1,22 @@
 Frostscar
 Recorded: 2026-10-12
 
+Biome ID: Not yet assigned.
 Region: Frozen Wastes
-Status: Planned custom biome. Documentation only; not implemented or added to the current biome pool.
-Biome ID: Not yet specified.
+Status: Planned custom biome. Design only; not implemented or added to the biome pool.
 
-Terrain design
-Lots of height differences, with valleys, canyons, cliffs and steep mountains.
+Terrain
+Large height differences with valleys, canyons, cliffs and steep mountains.
 
 Surface materials
-Most of the biome will be covered in deepslate with layers of snow on top.
-Some parts will consist of glaciers made of ice and snow.
+Mostly deepslate covered by snow layers.
+Some areas are glaciers made of ice and snow.
 
-Design details still missing
-Exact elevation ranges, terrain feature sizes and glacier distribution are not yet specified.
-Vegetation, structures and mobs are not yet specified.
+Still to design
+Elevation ranges, feature sizes, glacier distribution, vegetation, structures and mobs.
 
-Border instruction
-This design describes Frostscar's biome terrain. The accepted region border terrain remains unchanged.
-Do not change the border terrain unless specifically instructed. If a change becomes necessary for another reason, tell the user before changing it.
+Note
+This describes Frostscar's own biome terrain. It does not change the frozen region border mountains.
 
 Sources
 User-provided biome design on 2026-10-12.

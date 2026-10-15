@@ -1,35 +1,51 @@
-﻿Documentation notes and standing decisions
+Project notes and standing decisions
 Recorded: 2026-10-10
-Updated: 2026-10-12
+Updated: 2026-10-15
 
-Border terrain decision
+STANDING DECISIONS (in force)
+
+1. Border terrain is frozen (2026-10-10)
 The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
-Keep this restriction in effect for future work. This documentation task does not change world generation.
+This covers the border mountain shape: RegionLayout terrain, border width, region partition and terrain density outputs. Material-only changes need their own explicit authorization.
 
-Documentation layout
-docs/regions: One text file per known region.
-docs/biomes: One text file per current placeholder, plus the shared border biome, the earlier Ice Desert concept and planned custom biomes.
-docs/extra: Shared notes and decisions.
-docs/regions.md: Existing technical guide, retained.
+2. Border materials (2026-10-14, from the user's drawing)
+- Exposed faces below Y=220: blackstone.
+- Exposed faces at and above Y=220: continuous snow cap.
+- No exterior stone, deepslate, tuff, ore or random patches.
+- Underground: deepslate, about 4% tuff patches and deepslate ores.
 
-Evidence and scope
-These notes use the current user message, existing documentation and repository files. Earlier conversation messages are not visible in this session.
-Eleven regions are documented: Blooming Highlands, Cold Meadows, Crystal Peaks, Dry Dunes, Enchanted Groves, Frozen Wastes, Land of the Giants, Misty Marshes, Scorched Lands, Shadow Wilds and Verdant Valley.
-Scorched Lands was previously called Ember Lands. Its implementation key remains ember_lands; the rename is documentation only.
-The current generator still contains five region themes: Frozen Wastes, Cold Meadows, Scorched Lands (implementation key ember_lands), Verdant Valley and Crystal Peaks. The six additional regions are planned and have no assigned biome pools yet.
-Twenty vanilla interior biome placeholders are configured, plus Jagged Peaks for borders.
-Ice Desert is an earlier terrain concept, not a current custom biome.
-Frostscar is a planned custom biome for Frozen Wastes, documented from the user's design on 2026-10-12. It is not yet implemented.
-Theme descriptions inferred from names and pools are marked as such; missing designs remain unspecified.
+3. Border features
+Only custom deepslate ore placements. No dirt, gravel, granite, diorite, andesite, vegetation or other decorative features.
 
-Current project scope
-Choose Fantasy Regions when creating a new world. Installing the mod does not switch existing worlds automatically.
-Regions repeat throughout an infinite world; there is no fixed continent.
-The existing guide reports no custom biome terrain, custom cave biome selection, deliberate mountain pass system or ocean coastline.
-The Nether and End use vanilla generation.
-The project files record Minecraft 26.3, NeoForge 26.3.0.43-beta and Java 25.
+4. Scorched Lands naming (2026-10-12)
+Ember Lands was renamed Scorched Lands in documentation only. The code/data key stays ember_lands.
 
-Maintenance
-Update these files when the user supplies or changes region and biome designs.
-Distinguish planned ideas, vanilla placeholders and implemented custom features.
-All source paths are relative to the repository root.
+DECISION HISTORY
+
+2026-10-10  Border terrain accepted and frozen (decision 1).
+2026-10-12  Eleven-region list confirmed. Ember Lands renamed Scorched Lands. Frostscar design recorded.
+2026-10-12  Material-only border change authorized: 60:40 blackstone/deepslate exterior with about 10% stone/snow top accents; deepslate, small tuff patches and deepslate ores underground. The custom Region Border biome replaced the Jagged Peaks placeholder.
+            Later corrections rejected continuous stone caps, side coatings and decorative blocks (dirt, granite, diorite and similar).
+2026-10-14  Mixed exterior superseded by the user's drawing: blackstone below Y=220, continuous snow cap at and above (decision 2). Underground specification unchanged.
+2026-10-15  Documentation cleaned up. docs/biomes/jagged_peaks.txt removed (superseded by region_border.txt).
+
+PROJECT STATUS
+
+- Eleven regions confirmed. Five are generated with vanilla placeholder pools: Frozen Wastes, Cold Meadows, Scorched Lands, Verdant Valley, Crystal Peaks. Six are planned with no design yet: Blooming Highlands, Dry Dunes, Enchanted Groves, Land of the Giants, Misty Marshes, Shadow Wilds.
+- Twenty vanilla placeholder biomes (four per region) plus one custom biome, Region Border.
+- Frostscar is a planned custom biome for Frozen Wastes. Ice Desert is an earlier Test World prototype, not a biome.
+- Not implemented: custom biome terrain, custom cave biomes, mountain passes, oceans or coastlines. The Nether and End are vanilla.
+- Targets Minecraft 26.3, NeoForge 26.3.0.43-beta, Java 25.
+
+DOCUMENTATION LAYOUT
+
+docs/regions.md          Technical guide.
+docs/regions/*.txt       One file per confirmed region.
+docs/biomes/*.txt        One file per placeholder biome, custom biome, planned biome or earlier concept.
+docs/extra/              Shared notes and decisions (this file).
+
+MAINTENANCE
+
+- Update these files when the user supplies or changes region or biome designs, and add an entry to the decision history.
+- Keep planned ideas, vanilla placeholders and implemented features clearly distinguished. Mark inferred themes as inferred.
+- Source paths are relative to the repository root.

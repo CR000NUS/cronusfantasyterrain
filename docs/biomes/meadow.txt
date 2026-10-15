@@ -1,23 +1,18 @@
-﻿Meadow
+Meadow
 Recorded: 2026-10-10
 
 Biome ID: minecraft:meadow
 Region: Cold Meadows
-Status: Vanilla placeholder in the current Fantasy Regions preset.
-
-Known role
-Meadow placeholder.
+Status: Vanilla placeholder in the Fantasy Regions preset.
 
 Current behavior
-Local biome noise selects this biome from its region's allowed pool.
-Surface rules, vegetation, mobs, structures and carvers retain vanilla biome behavior.
-The terrain uses shared interior relief around Y=75-85, except where shared region border terrain takes over.
-This placeholder does not define custom fantasy terrain.
+- Local biome noise picks this biome from its region's pool.
+- Surface rules, vegetation, mobs, structures and carvers are vanilla.
+- Terrain is the shared region interior (about Y=75-85); the biome does not shape it.
 
 Future design
-A custom replacement, its final name and detailed features are not specified in the available files. This entry records an existing placeholder rather than a newly proposed design.
+No custom replacement has been specified yet.
 
 Sources (relative to repository root)
 src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json
-src/main/java/c/cronus/fantasyterrain/worldgen/RegionBiomeSource.java
 docs/regions.md

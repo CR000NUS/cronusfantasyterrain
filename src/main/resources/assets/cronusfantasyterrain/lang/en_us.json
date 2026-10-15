@@ -9,5 +9,6 @@
   "cronusfantasyterrain.configuration.logDirtBlock": "Log Dirt Block",
   "cronusfantasyterrain.configuration.magicNumberIntroduction": "Magic Number Text",
   "cronusfantasyterrain.configuration.magicNumber": "Magic Number",
-  "generator.cronusfantasyterrain.regions": "Fantasy Regions"
+  "generator.cronusfantasyterrain.regions": "Fantasy Regions",
+  "biome.cronusfantasyterrain.region_border": "Region Border Mountains"
 }

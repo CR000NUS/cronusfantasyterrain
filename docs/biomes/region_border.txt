@@ -1,0 +1,43 @@
+Region Border Mountains
+Recorded: 2026-10-12
+Updated: 2026-10-14
+
+Biome ID: cronusfantasyterrain:region_border
+Region: Shared mountain belts between all regions.
+Status: Implemented custom biome. Replaced the former minecraft:jagged_peaks placeholder on 2026-10-12.
+
+Selection
+Used wherever the border mask (erosion channel) exceeds 0.12. Positions with a weaker nonzero mask take the neighboring region's biome.
+
+Terrain (frozen; see docs/extra/project_notes.txt)
+The shape comes from RegionLayout, not from this biome: connected crests, branching ridges, steep flanks and low gullies.
+Belts extend up to 360 blocks either side of a region edge before coordinate warping, spanning about Y=28 to Y=305. Gullies below Y=63 fill with water.
+Mountain columns are solid below their surface; there are no floating slabs or overhangs.
+
+Materials (user drawing, 2026-10-14)
+- Exposed faces below Y=220: blackstone.
+- Exposed faces at and above Y=220: continuous snow cap, including steep faces, with no holes or scattered patches.
+- No exterior deepslate, stone, tuff or ore.
+- Buried rock and cave walls: deepslate with about 4% tuff patches, plus deepslate ores.
+- Bedrock, cave air and fluids are preserved.
+
+Climate
+Temperature 0.8, downfall 0.3, precipitation on. No freeze_top_layer feature, so lower slopes are not blanketed in snow.
+
+Features
+Only the custom ore placements under cronusfantasyterrain:border/ore_*. They keep vanilla frequencies and height ranges, use deepslate ore variants, replace only deepslate/tuff and are discarded when exposed to air.
+No dirt, gravel, granite, diorite, andesite, sediment disks, lakes, springs, geodes, dungeons or vegetation. The borderFeatureTest Gradle task enforces this whitelist.
+
+Implementation
+- BorderMaterialRule / BorderPalette choose the material. The border_exterior_floor density output (lowest neighboring surface) separates outdoor faces from buried rock; it does not change terrain.
+- BorderChunkMaterials repaints newly generated chunks after neighboring features have spilled in. It keeps cave air, fluids and approved ores, and never rewrites old saved chunks.
+
+Sources (relative to repository root)
+src/main/resources/data/cronusfantasyterrain/worldgen/biome/region_border.json
+src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/regions.json
+src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/region_border.json
+src/main/resources/data/cronusfantasyterrain/worldgen/density_function/border_exterior_floor.json
+src/main/java/c/cronus/fantasyterrain/worldgen/BorderMaterialRule.java
+src/main/java/c/cronus/fantasyterrain/worldgen/BorderPalette.java
+src/main/java/c/cronus/fantasyterrain/worldgen/BorderChunkMaterials.java
+User-provided border material designs on 2026-10-12 and 2026-10-14.
