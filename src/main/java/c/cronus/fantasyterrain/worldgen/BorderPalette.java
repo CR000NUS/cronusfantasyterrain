@@ -6,12 +6,14 @@ package c.cronus.fantasyterrain.worldgen;
  */
 public final class BorderPalette {
     public enum Material { DEEPSLATE, SNOW, TUFF }
-    /** Average snowline. The local line wanders by up to about ±17 blocks around it. */
-    public static final int SNOW_LINE = 220;
+    /** Average snowline (middle of the patchy band). The local line wanders by up to about ±17 blocks around it. */
+    public static final int SNOW_LINE = 214;
     /** Height of the patchy transition band around the local snowline. */
-    public static final int SNOW_BAND = 24;
+    public static final int SNOW_BAND = 36;
+    /** Extra height (blocks) steep faces need before they hold snow. */
+    private static final double STEEP_SHED = 14.4;
     /** Outdoor faces this far above the local snowline are always snow, even when steep. */
-    public static final int FULL_SNOW = 27;
+    public static final int FULL_SNOW = 33;
 
     public static Material select(long seed, int x, int y, int z, int top, int exteriorFloor, boolean gentle) {
         if (y >= exteriorFloor) {
@@ -40,8 +42,8 @@ public final class BorderPalette {
         double line = SNOW_LINE + 12 * smooth(seed, x / 96.0, z / 96.0, 5) + 5 * smooth(seed, x / 24.0, z / 24.0, 6);
         double level = (y - line) / SNOW_BAND;
         if (level < -0.5) return false;
-        // 0 on ledges and gentle slopes, up to 0.6 band heights on cliff faces.
-        double steep = 0.6 * Math.clamp((drop - 2) / 8.0, 0, 1);
+        // 0 on ledges and gentle slopes, up to STEEP_SHED blocks on cliff faces.
+        double steep = STEEP_SHED / SNOW_BAND * Math.clamp((drop - 2) / 8.0, 0, 1);
         double patch = 0.75 * (smooth(seed, x / 9.0, z / 9.0, 7) * 0.5 + 0.5) + 0.25 * chance(seed, x, 0, z, 8);
         return level - steep > patch - 0.5;
     }

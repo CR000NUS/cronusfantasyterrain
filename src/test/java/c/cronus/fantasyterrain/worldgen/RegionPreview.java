@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 public final class RegionPreview {
     public static void main(String[] args) throws Exception {
         long seed = args.length > 1 ? Long.parseLong(args[1]) : 12345L;
-        RegionLayout layout = new RegionLayout(seed, 3072, 360);
+        RegionLayout layout = new RegionLayout(seed, 3800, 360);
         int width = 1000, mapHeight = 800;
         BufferedImage image = new BufferedImage(width, 920, BufferedImage.TYPE_INT_RGB);
         Color[] colors = {new Color(159, 210, 236), new Color(153, 188, 178), new Color(207, 134, 98),
@@ -50,6 +50,7 @@ public final class RegionPreview {
         ImageIO.write(image, "png", output.toFile());
         System.out.println("Region preview: " + output.toAbsolutePath());
         writeTerrainPreview(layout, output.resolveSibling("border-terrain.png"));
+        writeRimPreview(layout, output.resolveSibling("border-rim.png"));
         BasinSectionPreview.write(layout, output.resolveSibling("basin-section.png"));
         BorderSnowPreview.write(layout, output.resolveSibling("border-snow.png"));
     }
@@ -137,5 +138,46 @@ public final class RegionPreview {
         ImageIO.write(image, "png", output.toFile());
         System.out.println("Border terrain preview: " + output.toAbsolutePath());
         BorderVolumePreview.write(layout, centerX, centerZ, output.resolveSibling("border-volume.png"));
+    }
+
+    /** Close-up of a mountain foot from above: deepslate border columns against region ground, hill-shaded. */
+    private static void writeRimPreview(RegionLayout layout, Path output) throws Exception {
+        // Walk west from the origin off the massif (whose edge the rim spurs do not move), then centre on the foot.
+        int footX = 0;
+        while (layout.sample(footX, 0).border() < 0.99f) footX -= 16;
+        while (layout.sample(footX, 0).border() >= 0.99f) footX -= 16;
+        footX -= 150;
+        int width = 1000, mapHeight = 700, scale = 2;
+        float[][] heights = new float[mapHeight][width];
+        boolean[][] border = new boolean[mapHeight][width];
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < width; x++) {
+                int bx = footX + (x - width / 2) * scale, bz = (y - mapHeight / 2) * scale;
+                RegionLayout.Sample sample = layout.sample(bx, bz);
+                heights[y][x] = layout.surfaceHeight(bx, bz, sample);
+                border[y][x] = sample.border() > RegionLayout.BORDER_THRESHOLD;
+            }
+        }
+        BufferedImage image = new BufferedImage(width, mapHeight + 50, BufferedImage.TYPE_INT_RGB);
+        for (int y = 0; y < mapHeight; y++) {
+            for (int x = 0; x < width; x++) {
+                float h = heights[y][x];
+                double slope = heights[y][Math.max(0, x - 1)] - h + heights[Math.max(0, y - 1)][x] - h;
+                double light = Math.clamp(0.85 + slope * 0.08, 0.35, 1.2);
+                Color color = !border[y][x] ? new Color(84, 128, 62) : h >= 220 ? new Color(225, 228, 232) : new Color(78, 78, 84);
+                image.setRGB(x, y, new Color((int) Math.min(255, color.getRed() * light),
+                        (int) Math.min(255, color.getGreen() * light), (int) Math.min(255, color.getBlue() * light)).getRGB());
+            }
+        }
+        Graphics2D g = image.createGraphics();
+        g.setColor(new Color(244, 242, 236));
+        g.fillRect(0, mapHeight, width, 50);
+        g.setColor(Color.DARK_GRAY);
+        g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
+        g.drawString("Mountain foot close-up: 2,000 x 1,400 blocks around x=" + footX
+                + ", z=0 | green: region ground | grey: border columns", 18, mapHeight + 30);
+        g.dispose();
+        ImageIO.write(image, "png", output.toFile());
+        System.out.println("Border rim preview: " + output.toAbsolutePath());
     }
 }

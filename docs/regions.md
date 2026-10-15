@@ -28,7 +28,7 @@ The Scorched Lands rename is documentation only; code and data still use `ember_
 
 ## Layout and biomes
 
-The infinite Overworld is split into large, seeded, irregular regions about 3,072 blocks across. The five generated themes repeat throughout the world; there is no fixed continent or compass position. (The original sketch is treated as a layout concept, not a fixed map.)
+The infinite Overworld is split into large, seeded regions shaped like rounded hexagons with slightly jagged rims (round regions on request 2026-10-15, decision 8; made less circular so the borders are narrower, decisions 10 and 11). Centres sit on a jittered hexagonal grid 3,800 blocks apart (`region_size`). Each region is a rounded hexagon (`RegionLayout.HEX` = 12: 2 would be a circle, higher is sharper) with flat sides facing its six neighbours and rounded corners filling the spots where three regions meet, plus a small per-region three-lobed bulge and oval stretch (`LOBES`, `OVAL`, 2% each). Every region is as large as its space allows: the rim stays `MIN_GAP` / 2 = 200 blocks behind the halfway line to each neighbour in every direction (wanted base radius `MIN_RADIUS`–`MAX_RADIUS` = 1650–1900, almost always trimmed). That gives about 1,700 blocks from the centre to a flat side and about 1,850 to a corner. A mild coordinate bend adds irregularity, and the rim wobbles by up to ±60 blocks (`RIM_NOISE`). On top of that the whole mountain front pushes up to 180 blocks into the region (`RIM_REACH`, decision 12) in broad, smooth lobes and bays a few hundred blocks across. Mountains fill the space between regions in fairly even belts, about 400 blocks from foot to foot (±120 from rim noise and jitter); there are no wide mountain areas where three regions meet. Region interiors without any border influence cover about 53% of the world (about 60% before the spurs). The five generated themes repeat throughout the world; there is no fixed continent or compass position. (The original sketch is treated as a layout concept, not a fixed map.)
 
 Each region has a pool of four vanilla placeholder biomes (the codec accepts four or five), and local biome noise picks only from that pool:
 
@@ -48,9 +48,11 @@ Region edges use the custom [Region Border](biomes/region_border.txt) biome wher
 
 ### Terrain (frozen; last changed on request 2026-10-15)
 
-- Belts extend up to 360 blocks either side of a region edge (about 720 blocks wide before coordinate warping).
+- The mountain foot is the region rim; the border mask fades out about 80 blocks inside it (foothills). Belts are about 400 blocks from foot to foot (`MIN_GAP`; rim noise narrows or widens them by up to 120): a ramp of about 100 blocks on each side and a raised massif between them.
+- Lobes (decision 12): the edge distance is shifted by up to `RIM_REACH` = 180 blocks, so the ramp and massif move into the region together with their normal profile (no low aprons). The reach is read from the point on the rim straight out from the region centre, so it is constant along each inward line and never forms islands. It fades out past the ramp, well before the ownership change. Reach is one-sided and never thins a belt. Where a lobe's flank runs obliquely the ramp is somewhat steeper sideways (rarely about 4–5 blocks per block near ground level).
+- Each position belongs to the region whose rim is nearest, so ownership changes halfway between two mountain feet, always after both ramps have finished. The edge distance stays continuous across that change. Rims are curved, so the ramp has no polygon corners (no vertical creases) and no long straight walls.
 - The belt is one giant mountain range: a high massif with many broad, rounded peaks and only rare deep cuts (user request 2026-10-15, decision 7). No thin, pointy spires between valleys.
-- Built from smooth (not ridged) warped gradient noise: a massif body (scale 520), many peaks on top (scale 150), rare taller summits (scale 340) and rare valleys that follow thin noise contours in a few gated stretches.
+- Built from warped gradient noise: a massif body (scale 520), many rounded peaks on top (scale 150), moderate ridged crests (scale 170, `RIDGE_STRENGTH` = 55) for sharper, slightly jagged summits (decision 9), rare taller summits (scale 340) and rare valleys that follow thin noise contours in a few gated stretches.
 - Heights (massif past the ramp): about 83% between Y=175 and Y=250 around `RANGE_CENTER` = 212; a few percent of summits above Y=270, capped at `PEAK_LIMIT` = 302; a few percent of valleys below Y=170, never below `MASSIF_FLOOR` = 150.
 - No holes, lakes, canyons or cliffs at or below region ground: belt terrain never dips below the region floor (Y=75), and the border biome has no ravine (`minecraft:canyon`) carver.
 - Harsh transition: the climb from region ground onto the massif happens between 19% and 47% of the border width from the belt's outer edge (`RAMP_START`/`RAMP_END`, about blocks 68–169), starting where the foothills end so the whole climb is deepslate, instead of across the whole belt. Near ground level the slope is steep but never more than 4 blocks up per block, so there is no sheer wall.
@@ -65,7 +67,7 @@ A column belongs to the border when its border mask exceeds 0.12 (`RegionLayout.
 
 Border columns are deepslate all the way through:
 
-- Exposed faces: deepslate (plain, no tuff) below the snow; snow fades in through a patchy band around a wandering snowline (average Y=220, locally about ±17 blocks; `BorderPalette.SNOW_LINE`/`SNOW_BAND`). No snow below Y=191; from Y=264 every exposed face is snow. Ledges and gentle slopes catch snow first; steep faces stay bare deepslate longer. No hard cut at one fixed height (user request 2026-10-15).
+- Exposed faces: deepslate (plain, no tuff) below the snow; snow fades in through a patchy band around a wandering snowline (average Y=214, band 36 blocks tall, locally about ±17 blocks; `BorderPalette.SNOW_LINE`/`SNOW_BAND`; extended downward 2026-10-16). No snow below Y=179; from Y=264 every exposed face is snow. Ledges and gentle slopes catch snow first; steep faces stay bare deepslate longer. No hard cut at one fixed height (user request 2026-10-15).
 - Buried rock and cave walls: deepslate with about 4% tuff patches, plus deepslate ores.
 - No exterior stone, blackstone, tuff, ore or random patches.
 
@@ -95,7 +97,7 @@ Each region's grass, dirt and stone sit in a deepslate bowl whose walls continue
 - `RegionFunction.java` – exposes region ID, border mask, surface height, density, exterior floor and basin floor to Minecraft. All outputs derive their seed from the same namespaced random source, so they agree regardless of chunk order.
 - `RegionBiomeSource.java` – reads region ID from the router's temperature channel, border strength from erosion and local biome noise from vegetation. These channels carry region data, not vanilla climate values.
 - `world_preset/regions.json` – each region's biome pool. Replace placeholder IDs with custom biomes as they are built.
-- `density_function/region_id.json`, `region_border.json`, `region_height.json`, `region_terrain.json`, `border_exterior_floor.json`, `region_basin_floor.json` – all contain `region_size` (3072) and `border_width` (360). **Keep them identical** or terrain and ownership desynchronize.
+- `density_function/region_id.json`, `region_border.json`, `region_height.json`, `region_terrain.json`, `border_exterior_floor.json`, `region_basin_floor.json` – all contain `region_size` (3800, the spacing between region centres) and `border_width` (360). **Keep them identical** or terrain and ownership desynchronize.
 - `density_function/region_terrain.json` – selects the `density` output (interior relief, alpine ridges and valleys). Future biome terrain can feed into this layer.
 - `noise/region_biomes.json` – local biome patch scale, independent of region size.
 - `FrozenLand.java` – identifies Frozen Wastes (`REGION_INDEX = 0`); its pool is data-driven in the preset.

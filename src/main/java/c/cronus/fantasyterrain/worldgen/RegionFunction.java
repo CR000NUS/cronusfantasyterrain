@@ -12,7 +12,7 @@ import net.minecraft.world.level.levelgen.densityfunction.*;
 public record RegionFunction(int regionSize, int borderWidth, Output output) implements DensityFunction {
     public enum Output { REGION, BORDER, HEIGHT, DENSITY, EXTERIOR_FLOOR, BASIN_FLOOR }
     public static final MapCodec<RegionFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-            Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3072).forGetter(RegionFunction::regionSize),
+            Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3800).forGetter(RegionFunction::regionSize),
             Codec.intRange(32, 512).optionalFieldOf("border_width", 360).forGetter(RegionFunction::borderWidth),
             Codec.STRING.comapFlatMap(s -> {
                         try {

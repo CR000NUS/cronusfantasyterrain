@@ -12,13 +12,13 @@ Border materials follow the same 0.12 test per column, not the per-block biome, 
 
 Terrain (frozen; changed on request 2026-10-15; see docs/extra/project_notes.txt)
 The shape comes from RegionLayout, not from this biome: one giant mountain range with many broad, rounded peaks. Most of the massif lies between Y=175 and Y=250; rare summits reach about Y=300 and rare deep valleys reach down to about Y=150.
-Belts extend up to 360 blocks either side of a region edge before coordinate warping. A short, steep ramp (about blocks 68–169 from the belt's outer edge, starting at the foothill rim) climbs from region ground onto the massif.
+The mountains fill the space between the regions (rounded hexagons, about 1,700 blocks from centre to side) in fairly even belts of about 400 blocks foot to foot, including where three regions meet. The whole mountain front pushes up to 180 blocks into the regions in broad lobes and bays (decision 12, 2026-10-16). A short, steep ramp (about blocks 68–169 from the belt's outer edge, starting at the foothill rim) climbs from region ground onto the massif.
 No holes, lakes, canyons or cliffs at or below region ground. The ravine (minecraft:canyon) carver was removed; cave carvers remain.
 Mountain columns are solid below their surface; there are no floating slabs or overhangs.
 
 Materials (user drawing 2026-10-14; blackstone replaced by deepslate 2026-10-15)
 - Exposed faces: deepslate (plain, no tuff) below the snow.
-- Snow (changed 2026-10-15): snow fades in through a patchy band around a wandering snowline (average Y=220, locally about ±17 blocks; BorderPalette.SNOW_LINE/SNOW_BAND). No snow below Y=191; from Y=264 every exposed face is snow. Ledges and gentle slopes catch snow first; steep faces stay bare deepslate longer.
+- Snow (changed 2026-10-15): snow fades in through a patchy band around a wandering snowline (average Y=214, band 36 blocks tall, locally about ±17 blocks; BorderPalette.SNOW_LINE/SNOW_BAND; extended downward 2026-10-16). No snow below Y=179; from Y=264 every exposed face is snow. Ledges and gentle slopes catch snow first; steep faces stay bare deepslate longer.
 - No exterior stone, blackstone, tuff or ore.
 - Buried rock and cave walls: deepslate with about 4% tuff patches, plus deepslate ores.
 - Bedrock, cave air and fluids are preserved.

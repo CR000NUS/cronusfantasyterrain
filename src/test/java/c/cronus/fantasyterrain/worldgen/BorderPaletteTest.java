@@ -8,7 +8,7 @@ public final class BorderPaletteTest {
         Random random = new Random(872145);
         int samples = 200000, tuff = 0;
         int low = BorderPalette.lowestSnow(), high = BorderPalette.fullSnow();
-        int[] bandYs = {200, 210, 220, 230, 240, 250};
+        int[] bandYs = {190, 200, 210, 220, 230, 240, 250};
         int[] gentleSnow = new int[bandYs.length], steepSnow = new int[bandYs.length];
         for (int i = 0; i < samples; i++) {
             int x = random.nextInt(200000) - 100000, z = random.nextInt(200000) - 100000;
@@ -47,7 +47,7 @@ public final class BorderPaletteTest {
             require(steepSnow[b] <= gentleSnow[b], "Steep faces must not hold more snow than ledges");
             previous = cover;
         }
-        require(gentleSnow[1] > samples * 0.03 && gentleSnow[1] < samples * 0.5, "Lower snow band must be patchy, not empty or solid");
+        require(gentleSnow[2] > samples * 0.03 && gentleSnow[2] < samples * 0.5, "Lower snow band must be patchy, not empty or solid");
         require(gentleSnow[3] > samples * 0.5 && gentleSnow[3] < samples * 0.97, "Upper snow band must be patchy, not empty or solid");
         require(Math.abs(tuff / (double) samples - 0.04) < 0.005, "Underground tuff must remain a small minority");
         System.out.println("Snowline checks passed across 200,000 positions; snow cover ledge/cliff:" + profile

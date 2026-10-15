@@ -11,7 +11,7 @@ Revised on request 2026-10-15 (decisions 6 and 7); the freeze applies to the rev
 
 2. Border materials (2026-10-14 drawing, updated 2026-10-15)
 - Exposed faces: deepslate (plain, no tuff) below the snow.
-- Snow: natural, patchy transition around an average snowline of Y=220 (changed 2026-10-15, decision 7); no hard cut.
+- Snow: natural, patchy transition around an average snowline of Y=214 (changed 2026-10-15, decision 7; band extended downward 2026-10-16: first patches from Y=179, full cap still from Y=264); no hard cut.
 - No exterior stone, blackstone, tuff, ore or random patches.
 - Underground: deepslate, about 4% tuff patches and deepslate ores.
 - Digging into the mountains or their caves must reveal only deepslate, never stone.
@@ -40,6 +40,34 @@ And: "The border should look like 1 giant mountain range with many moutain peaks
 - Smooth noise replaces the ridged multifractal, so mountains between valleys are broad, not thin and pointy.
 - Ramp, border width and region partition unchanged.
 
+8. Round regions with jagged rims (2026-10-15)
+The user showed a sharp crease where two ramp walls met at a region corner and a long, uniform straight wall, and said: "So the regions should be more circular and the edges should be slightly more jagged. Since it's now a bit more circular shape, i want the radius of the region to be roughly somewhere between 1300-1500 blocks"
+Sketches: one round region with a jagged rim; several irregular round regions with mountain gaps between them.
+- Regions are round blobs, radius 1300-1500 blocks from centre to mountain foot, rim wobble up to about 60 blocks.
+- Centres on a jittered hexagonal grid 3,800 blocks apart; mountains fill the gaps. Ownership still changes inside full mountains.
+- Mountain shape, ramp, materials and snow unchanged.
+
+9. Bigger regions, thinner borders, slightly sharper mountains (2026-10-15)
+The user said: "Change the spacing a bit by making the regions slightly bigger and the borders a bit thinner." and "The mountains are a bit too smooth. Make them slightly more pointy/jagged again but not as much as it originally used to be."
+- Region radius 1450-1650 blocks (was 1300-1500); spacing stays 3,800. Narrowest belt about 400 blocks foot to foot (was about 560). Ownership now changes halfway between two mountain feet.
+- Moderate ridged crests added on top of the rounded peaks (RIDGE_STRENGTH = 55). Height bands unchanged: about 80% between Y=175 and Y=250.
+
+10. Slightly less circular regions (2026-10-15)
+The user said: "Make the regions slightly less circular."
+- Per-region three-lobed shape (up to 8% of the radius, lobes pointing into the wide three-region mountain areas) and slight oval stretch (up to 6%), random strength and orientation.
+- Radii are capped per direction, so the narrowest belt stays about 400 blocks. Median radius about 1495.
+
+11. Rounded-hexagon regions, narrower borders (2026-10-15)
+The user said: "Make the regions less circular so that the borders are not as wide anymore."
+- Regions are rounded hexagons (HEX = 12) filling their share of the grid; the rim stays 200 blocks behind the halfway line to each neighbour in every direction. Belts about 400 blocks foot to foot everywhere, no wide three-region mountain areas.
+- Per-region lobes and oval stretch reduced to 2% each (they cost space). Regions cover about 60% of the world (was about 50%).
+
+12. Mountain foot reaching into the regions (2026-10-16)
+The user asked for the rim of the border to "reach more randomly into the region itself" and drew a winding foot line with rounded tongues and bays.
+- First attempt (low deepslate aprons in front of the ramp) rejected the same day: "too random", the gentle aprons did not blend in and ended at a sudden steep wall.
+- Final: the whole mountain front (ramp and massif) pushes up to RIM_REACH = 180 blocks into a region in broad, smooth lobes and bays a few hundred blocks across, everywhere along the rim. No aprons; the ramp keeps its normal steep profile. Reach is one-sided, so no belt gets thinner, and it never forms detached islands.
+- Region interiors (no border influence at all) shrink from about 60% to about 53% of the world.
+
 DECISION HISTORY
 
 2026-10-10  Border terrain accepted and frozen (decision 1).
@@ -51,6 +79,12 @@ DECISION HISTORY
 2026-10-15  User reported stone under the border's blackstone (per-block fuzzy biome lookup and foothill columns). Border materials now use the column border mask; deepslate basin added under foothills (decision 5). Geometry untouched.
 2026-10-15  Border terrain changed on request: raised massif, harsh short ramp, no canyons/lakes, ravine carver removed (decision 6).
 2026-10-15  Border terrain changed on request: one broad range (Y=175-250 mostly), rare summits and valleys; natural patchy snowline (decision 7).
+2026-10-15  Region partition changed on request: round regions (radius 1300-1500) with jagged rims on a hexagonal grid; region_size 3072 -> 3800 (decision 8).
+2026-10-15  Bigger regions (radius 1450-1650), thinner belts (about 400 blocks), moderate ridged crests (decision 9).
+2026-10-15  Regions made slightly less circular: per-region lobes and oval stretch (decision 10).
+2026-10-15  Regions made rounded hexagons that fill their space; belts about 400 blocks everywhere (decision 11).
+2026-10-16  Mountain front changed on request: whole front pushes up to 180 blocks into the regions in broad lobes; low-apron spurs tried and rejected (decision 12).
+2026-10-16  Material-only change requested by the user: snow transition reaches further down (first patches Y=179 instead of 191, band 36 instead of 24 blocks, full cap unchanged at Y=264). Geometry untouched.
 2026-10-15  Documentation cleaned up. docs/biomes/jagged_peaks.txt removed (superseded by region_border.txt).
 
 PROJECT STATUS

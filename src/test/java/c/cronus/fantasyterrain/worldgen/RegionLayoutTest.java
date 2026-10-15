@@ -5,8 +5,8 @@ import java.util.Random;
 /** Standalone checks for the region geometry, including negative world coordinates. */
 public final class RegionLayoutTest {
     public static void main(String[] args) {
-        RegionLayout layout = new RegionLayout(12345L, 3072, 360);
-        RegionLayout other = new RegionLayout(54321L, 3072, 360);
+        RegionLayout layout = new RegionLayout(12345L, 3800, 360);
+        RegionLayout other = new RegionLayout(54321L, 3800, 360);
         Random random = new Random(9876L);
         boolean[] found = new boolean[5];
         int boundaries = 0, seedChanges = 0, interiors = 0;
@@ -90,7 +90,10 @@ public final class RegionLayoutTest {
             }
             if (neighbor.region() != sample.region()) {
                 boundaries++;
-                require(sample.border() > 0.99f && neighbor.border() > 0.99f, "Region transition lacks mountains");
+                // Ownership changes halfway between two mountain feet, where both ramps have finished.
+                for (RegionLayout.Sample side : new RegionLayout.Sample[] {sample, neighbor}) {
+                    require(1 - side.edgeDistance() / 360.0 >= RegionLayout.RAMP_END, "Region transition lacks mountains");
+                }
                 require(Math.abs(height - neighborHeight) < 100, "Terrain seam at border");
                 require(height == layout.surfaceHeight(x, z, new RegionLayout.Sample(neighbor.region(), sample.border(), sample.edgeDistance())),
                         "Changing region ownership changes border terrain");
@@ -99,7 +102,8 @@ public final class RegionLayoutTest {
         for (boolean region : found) require(region, "A region theme never appears");
         require(boundaries > 10, "No region transitions tested");
         require(seedChanges > 15000, "World seed does not affect layout");
-        require(interiors > 15000, "Mountain belts occupy too much interior");
+        // Rounded-hexagon regions cover about 60% of the world; the rest is mountain belts.
+        require(interiors > 11000, "Mountain belts occupy too much interior");
         require(peaks > 100, "Border lacks tall peaks");
         // One broad range: most of the massif in the main band, rare taller summits and rare deep valleys.
         require(mainBand > core * 0.75, "Most of the massif must lie between Y=175 and Y=250");
