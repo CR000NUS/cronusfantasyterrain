@@ -1,25 +1,32 @@
 Region Border Mountains
 Recorded: 2026-10-12
-Updated: 2026-10-14
+Updated: 2026-10-15
 
 Biome ID: cronusfantasyterrain:region_border
 Region: Shared mountain belts between all regions.
 Status: Implemented custom biome. Replaced the former minecraft:jagged_peaks placeholder on 2026-10-12.
 
 Selection
-Used wherever the border mask (erosion channel) exceeds 0.12. Positions with a weaker nonzero mask take the neighboring region's biome.
+Used wherever the border mask (erosion channel) exceeds 0.12. Positions with a weaker nonzero mask (the foothills) take the neighboring region's biome.
+Border materials follow the same 0.12 test per column, not the per-block biome, so mountain columns never contain region stone.
 
-Terrain (frozen; see docs/extra/project_notes.txt)
-The shape comes from RegionLayout, not from this biome: connected crests, branching ridges, steep flanks and low gullies.
-Belts extend up to 360 blocks either side of a region edge before coordinate warping, spanning about Y=28 to Y=305. Gullies below Y=63 fill with water.
+Terrain (frozen; changed on request 2026-10-15; see docs/extra/project_notes.txt)
+The shape comes from RegionLayout, not from this biome: one giant mountain range with many broad, rounded peaks. Most of the massif lies between Y=175 and Y=250; rare summits reach about Y=300 and rare deep valleys reach down to about Y=150.
+Belts extend up to 360 blocks either side of a region edge before coordinate warping. A short, steep ramp (about blocks 68–169 from the belt's outer edge, starting at the foothill rim) climbs from region ground onto the massif.
+No holes, lakes, canyons or cliffs at or below region ground. The ravine (minecraft:canyon) carver was removed; cave carvers remain.
 Mountain columns are solid below their surface; there are no floating slabs or overhangs.
 
-Materials (user drawing, 2026-10-14)
-- Exposed faces below Y=220: blackstone.
-- Exposed faces at and above Y=220: continuous snow cap, including steep faces, with no holes or scattered patches.
-- No exterior deepslate, stone, tuff or ore.
+Materials (user drawing 2026-10-14; blackstone replaced by deepslate 2026-10-15)
+- Exposed faces: deepslate (plain, no tuff) below the snow.
+- Snow (changed 2026-10-15): snow fades in through a patchy band around a wandering snowline (average Y=220, locally about ±17 blocks; BorderPalette.SNOW_LINE/SNOW_BAND). No snow below Y=191; from Y=264 every exposed face is snow. Ledges and gentle slopes catch snow first; steep faces stay bare deepslate longer.
+- No exterior stone, blackstone, tuff or ore.
 - Buried rock and cave walls: deepslate with about 4% tuff patches, plus deepslate ores.
 - Bedrock, cave air and fluids are preserved.
+
+Deepslate basin (user sketch, 2026-10-15)
+Regions are "cauldrons": grass, dirt and stone sit in a deepslate bowl whose walls rise into these mountains.
+Foothills keep vanilla surface and stone; deepslate starts below them at a basin floor that meets the surface at the mountain foot and curves down to Y=0 within 384 blocks.
+Implemented by BasinMaterialRule, material_rule/region_basin.json and density_function/region_basin_floor.json (material channel only).
 
 Climate
 Temperature 0.8, downfall 0.3, precipitation on. No freeze_top_layer feature, so lower slopes are not blanketed in snow.
@@ -40,4 +47,7 @@ src/main/resources/data/cronusfantasyterrain/worldgen/density_function/border_ex
 src/main/java/c/cronus/fantasyterrain/worldgen/BorderMaterialRule.java
 src/main/java/c/cronus/fantasyterrain/worldgen/BorderPalette.java
 src/main/java/c/cronus/fantasyterrain/worldgen/BorderChunkMaterials.java
-User-provided border material designs on 2026-10-12 and 2026-10-14.
+src/main/java/c/cronus/fantasyterrain/worldgen/BasinMaterialRule.java
+src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/region_basin.json
+src/main/resources/data/cronusfantasyterrain/worldgen/density_function/region_basin_floor.json
+User-provided border material designs on 2026-10-12, 2026-10-14 and 2026-10-15 (cauldron sketch).

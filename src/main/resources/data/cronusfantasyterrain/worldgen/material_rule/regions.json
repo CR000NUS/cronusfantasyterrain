@@ -2,14 +2,8 @@
   "type": "minecraft:sequence",
   "sequence": [
     "minecraft:bedrock_floor",
-    {
-      "type": "minecraft:condition",
-      "if_true": {
-        "type": "minecraft:biome",
-        "biome_is": "cronusfantasyterrain:region_border"
-      },
-      "then_run": "cronusfantasyterrain:region_border"
-    },
+    "cronusfantasyterrain:region_border",
+    "cronusfantasyterrain:region_basin",
     "minecraft:overworld"
   ]
 }

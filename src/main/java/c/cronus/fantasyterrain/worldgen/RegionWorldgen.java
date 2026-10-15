@@ -21,6 +21,7 @@ public final class RegionWorldgen {
         SOURCES.register("regions", () -> RegionBiomeSource.CODEC);
         FUNCTIONS.register("region", () -> RegionFunction.CODEC);
         MATERIALS.register("border_palette", () -> BorderMaterialRule.CODEC);
+        MATERIALS.register("region_basin", () -> BasinMaterialRule.CODEC);
     }
     public static void register(IEventBus bus) {
         SOURCES.register(bus);

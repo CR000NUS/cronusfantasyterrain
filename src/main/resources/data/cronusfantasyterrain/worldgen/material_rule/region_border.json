@@ -1,5 +1,6 @@
-﻿{
+{
   "type": "cronusfantasyterrain:border_palette",
+  "border": "cronusfantasyterrain:region_border",
   "surface": "cronusfantasyterrain:region_height",
   "exterior_floor": "cronusfantasyterrain:border_exterior_floor"
 }

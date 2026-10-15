@@ -3,14 +3,29 @@ package c.cronus.fantasyterrain.worldgen;
 /** Seeded, warped Voronoi cells. This layer owns regions, not biome terrain. */
 public final class RegionLayout {
     public static final int REGION_COUNT = 5;
+    /** Border mask above which a column belongs to the border mountains (biome and materials). */
+    public static final float BORDER_THRESHOLD = 0.12f;
+    /** Horizontal reach of the deepslate basin wall, measured inward from the mountain foot. */
+    public static final double BASIN_REACH = 384;
+    /** Lowest point of the massif (floor of the rare deep valleys); always far above region ground (Y=75–85). */
+    public static final double MASSIF_FLOOR = 150;
+    /** Typical massif height; most of the belt lies between about Y=175 and Y=250. */
+    public static final double RANGE_CENTER = 212;
+    /** Highest summits (rare). */
+    public static final double PEAK_LIMIT = 302;
+    /** Fractions of the border width (from the belt's outer edge) where the climb onto the massif starts and ends. */
+    public static final double RAMP_START = 0.19, RAMP_END = 0.47;
     private final long seed;
     private final int size;
     private final int borderWidth;
+    private final double rimDistance;
 
     public RegionLayout(long seed, int size, int borderWidth) {
         this.seed = seed;
         this.size = size;
         this.borderWidth = borderWidth;
+        // Inverse smoothstep: the edge distance at which the border mask equals BORDER_THRESHOLD.
+        this.rimDistance = borderWidth * (0.5 + Math.sin(Math.asin(1 - 2 * BORDER_THRESHOLD) / 3));
     }
 
     public Sample sample(int blockX, int blockZ) {
@@ -50,7 +65,7 @@ public final class RegionLayout {
         int region = Math.floorMod(winnerCellX + 2 * winnerCellZ + (int) seed, REGION_COUNT);
         double t = Math.max(0, 1 - edgeDistance / borderWidth);
         float border = (float) (t * t * (3 - 2 * t));
-        return new Sample(region, border);
+        return new Sample(region, border, (float) edgeDistance);
     }
 
     public float surfaceHeight(int x, int z, Sample sample) {
@@ -62,30 +77,41 @@ public final class RegionLayout {
         double interior = 80 + 5 * noise(x / 300.0, z / 300.0);
         if (sample.border() == 0) return new TerrainColumn((float) interior, 0);
 
-        // Alpine ridge hierarchy: tributary detail is strongest on the main ridges, not in valleys.
+        // One broad mountain range: a high massif body with many rounded peaks on top, rare taller
+        // summits and rare deep valleys. Smooth (non-ridged) noise keeps every mountain broad-based.
         double u = x * 0.86 + z * 0.51, v = z * 0.86 - x * 0.51;
         u += 70 * noise(x / 430.0, z / 430.0, 51);
         v += 70 * noise(x / 430.0, z / 430.0, 52);
-        double weight = 1, sum = 0, amplitude = 1, normalization = 0;
-        double scale = 280;
-        for (int octave = 0; octave < 4; octave++) {
-            double field = noise3d(u / scale, 0.371 + octave * 0.173, v / scale, 80 + octave);
-            double signal = square(1 - Math.abs(field));
-            signal *= weight;
-            sum += signal * amplitude;
-            normalization += amplitude;
-            weight = Math.clamp(signal * 2.2, 0, 1);
-            scale *= 0.5;
-            // Slightly soften fine ridge detail while retaining the main crest network.
-            amplitude *= 0.43;
-        }
-        double ridge = sum / normalization;
-        double peakVariation = 12 * noise(u / 340, v / 340, 90);
-        double alpineHeight = 28 + 265 * ridge + peakVariation * ridge;
-        // Broad bases, connected crests, and erosion-like gullies all follow the same ridge network.
-        double belt = Math.pow(sample.border(), 0.8);
+        double body = fbm(u, v, 520, 3, 80);
+        double peaks = fbm(u, v, 150, 3, 84);
+        double summit = smoothstep(0.12, 0.5, fbm(u, v, 340, 2, 88));
+        double alpineHeight = RANGE_CENTER + 75 * body + 45 * peaks + 50 * summit * (0.7 + 0.6 * Math.max(0, peaks));
+        // Rare valleys: thin noise contours, switched on only in a few stretches of the belt.
+        double path = Math.abs(fbm(u, v, 640, 2, 92));
+        double gate = smoothstep(0.12, 0.4, fbm(x, z, 900, 1, 94));
+        double cut = gate * (1 - smoothstep(0, 0.16, path));
+        double valleyFloor = MASSIF_FLOOR + 6 + 6 * noise(u / 120, v / 120, 96);
+        alpineHeight += cut * (Math.min(valleyFloor, alpineHeight) - alpineHeight);
+        alpineHeight = Math.clamp(alpineHeight, MASSIF_FLOOR, PEAK_LIMIT);
+        // Short, steep ramp from region ground onto the massif instead of a belt-wide slope.
+        double t = Math.clamp(1 - sample.edgeDistance() / borderWidth, 0, 1);
+        double belt = smoothstep(RAMP_START, RAMP_END, t);
         float height = (float) (interior + belt * (alpineHeight - interior));
         return new TerrainColumn(height, sample.border());
+    }
+
+    /**
+     * Material channel only: rock below this Y is the deepslate "cauldron" holding a region's stone.
+     * It meets the surface at the mountain foot, curves down like a quarter ellipse and settles at Y=0
+     * (the vanilla deepslate line) BASIN_REACH blocks inward. Terrain height and density are unaffected.
+     */
+    public float basinFloor(int x, int z, Sample sample) {
+        double inward = sample.edgeDistance() - rimDistance;
+        if (inward >= BASIN_REACH) return 0;
+        float surface = surfaceHeight(x, z, sample);
+        if (inward <= 0) return surface;
+        double t = 1 - inward / BASIN_REACH;
+        return (float) (surface * (1 - Math.sqrt(1 - t * t)));
     }
 
     private double siteX(int x, int z) {
@@ -110,6 +136,18 @@ public final class RegionLayout {
         return 2 * ((a + (b - a) * tx) * (1 - tz) + (c + (d - c) * tx) * tz) - 1;
     }
 
+    /** Smooth gradient-noise fractal, roughly -1..1 with most values near 0. */
+    private double fbm(double x, double z, double scale, int octaves, int salt) {
+        double sum = 0, amplitude = 1, normalization = 0;
+        for (int octave = 0; octave < octaves; octave++) {
+            sum += amplitude * noise3d(x / scale, 0.371 + octave * 0.173, z / scale, salt + octave);
+            normalization += amplitude;
+            amplitude *= 0.5;
+            scale *= 0.5;
+        }
+        return sum / normalization;
+    }
+
     private static double smoothstep(double low, double high, double value) {
         double t = Math.clamp((value - low) / (high - low), 0, 1);
         return t * t * (3 - 2 * t);
@@ -125,7 +163,7 @@ public final class RegionLayout {
     private static double unit(long hash) { return (hash >>> 11) * 0x1.0p-53; }
     private static double square(double value) { return value * value; }
 
-    public record Sample(int region, float border) {}
+    public record Sample(int region, float border, float edgeDistance) {}
 
     /** Every ridge is grounded: a column contains no floating slabs, holes, or carved pocket templates. */
     public record TerrainColumn(float surfaceHeight, float border) {

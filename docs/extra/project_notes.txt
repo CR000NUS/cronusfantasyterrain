@@ -7,18 +7,38 @@ STANDING DECISIONS (in force)
 1. Border terrain is frozen (2026-10-10)
 The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
 This covers the border mountain shape: RegionLayout terrain, border width, region partition and terrain density outputs. Material-only changes need their own explicit authorization.
+Revised on request 2026-10-15 (decisions 6 and 7); the freeze applies to the revised shape.
 
-2. Border materials (2026-10-14, from the user's drawing)
-- Exposed faces below Y=220: blackstone.
-- Exposed faces at and above Y=220: continuous snow cap.
-- No exterior stone, deepslate, tuff, ore or random patches.
+2. Border materials (2026-10-14 drawing, updated 2026-10-15)
+- Exposed faces: deepslate (plain, no tuff) below the snow.
+- Snow: natural, patchy transition around an average snowline of Y=220 (changed 2026-10-15, decision 7); no hard cut.
+- No exterior stone, blackstone, tuff, ore or random patches.
 - Underground: deepslate, about 4% tuff patches and deepslate ores.
+- Digging into the mountains or their caves must reveal only deepslate, never stone.
+
+5. Region basin / "cauldron" (2026-10-15, user sketch)
+The user said: "Think of it like a of the regions like cauldrons. The deepslate (from underneath the stone layers of the overworld) all the way up the border mountains are the cauldron itself. The biome, the dirt floor, the stone underneath, all of that is the water inside the cauldron."
+- Region interiors and foothills keep grass, dirt and stone when dug into.
+- Below them a deepslate bowl rises from the vanilla deepslate line (Y=0) to the mountain foot and continues as the border mountains.
 
 3. Border features
 Only custom deepslate ore placements. No dirt, gravel, granite, diorite, andesite, vegetation or other decorative features.
 
 4. Scorched Lands naming (2026-10-12)
 Ember Lands was renamed Scorched Lands in documentation only. The code/data key stays ember_lands.
+
+6. Higher border massif with a harsh transition (2026-10-15)
+The user said: "Change the terrain of the border a bit more so that it's overall more leaning towards a higher altitude. There shouldn't be holes, lakes or cliffs at ground level or below anymore. The transitions from the region to the border should also be less slight and more harsh. It should still be a transition but a more harsh and quick transition."
+- Massif floor Y=125, crests about Y=300; no belt terrain below region ground (Y=75).
+- Ramp from region ground onto the massif within about 100 blocks; steep, but no sheer walls at ground level.
+- Ravine carver removed from the border biome. Border width and region partition unchanged.
+
+7. Broad mountain range and natural snowline (2026-10-15)
+The user said the snow "starts with a hard cut, starting at a set world height. Change this so that snow has a natural looking transition."
+And: "The border should look like 1 giant mountain range with many moutain peaks and rarely a deep cut. To put it into perspective, the majority of the border should be at a height between 70-100 blocks. A small amount has a chance to generate a mountain that reaches a height of 120 and a small amount has a chance to generate a valley that reaches a height of 60. It should look natural and realistic."
+- The 60/70/100/120 figures were read as proportions of the range, with 120 at the previous highest crests (about Y=300): main band Y=175-250, rare summits to about Y=300, rare valleys to about Y=150.
+- Smooth noise replaces the ridged multifractal, so mountains between valleys are broad, not thin and pointy.
+- Ramp, border width and region partition unchanged.
 
 DECISION HISTORY
 
@@ -27,6 +47,10 @@ DECISION HISTORY
 2026-10-12  Material-only border change authorized: 60:40 blackstone/deepslate exterior with about 10% stone/snow top accents; deepslate, small tuff patches and deepslate ores underground. The custom Region Border biome replaced the Jagged Peaks placeholder.
             Later corrections rejected continuous stone caps, side coatings and decorative blocks (dirt, granite, diorite and similar).
 2026-10-14  Mixed exterior superseded by the user's drawing: blackstone below Y=220, continuous snow cap at and above (decision 2). Underground specification unchanged.
+2026-10-15  Material-only change requested by the user: all border stone and blackstone replaced with deepslate. Exposed faces below Y=220 are now deepslate; snow cap and underground unchanged. Geometry untouched.
+2026-10-15  User reported stone under the border's blackstone (per-block fuzzy biome lookup and foothill columns). Border materials now use the column border mask; deepslate basin added under foothills (decision 5). Geometry untouched.
+2026-10-15  Border terrain changed on request: raised massif, harsh short ramp, no canyons/lakes, ravine carver removed (decision 6).
+2026-10-15  Border terrain changed on request: one broad range (Y=175-250 mostly), rare summits and valleys; natural patchy snowline (decision 7).
 2026-10-15  Documentation cleaned up. docs/biomes/jagged_peaks.txt removed (superseded by region_border.txt).
 
 PROJECT STATUS

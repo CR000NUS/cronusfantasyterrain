@@ -50,6 +50,8 @@ public final class RegionPreview {
         ImageIO.write(image, "png", output.toFile());
         System.out.println("Region preview: " + output.toAbsolutePath());
         writeTerrainPreview(layout, output.resolveSibling("border-terrain.png"));
+        BasinSectionPreview.write(layout, output.resolveSibling("basin-section.png"));
+        BorderSnowPreview.write(layout, output.resolveSibling("border-snow.png"));
     }
 
     private static void writeTerrainPreview(RegionLayout layout, Path output) throws Exception {
@@ -100,7 +102,7 @@ public final class RegionPreview {
         g.setColor(Color.DARK_GRAY);
         g.drawString("Border terrain: 3,000 x 1,800 blocks | shaded density surface, not an in-game screenshot", 18, 628);
         g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 16));
-        g.drawString("Blue: canyon floors below sea level | grey: jagged ridges | green: neutral interiors", 18, 653);
+        g.drawString("Grey: raised massif and ridges | green: neutral interiors | no belt terrain below region ground", 18, 653);
         int[] polygonX = new int[width + 2], polygonY = new int[width + 2];
         for (int x = 0; x < width; x++) {
             polygonX[x] = x;

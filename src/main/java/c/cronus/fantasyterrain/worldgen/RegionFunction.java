@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.densityfunction.*;
 
 /** Shared world-seeded layout, including three-dimensional border rock density. */
 public record RegionFunction(int regionSize, int borderWidth, Output output) implements DensityFunction {
-    public enum Output { REGION, BORDER, HEIGHT, DENSITY, EXTERIOR_FLOOR }
+    public enum Output { REGION, BORDER, HEIGHT, DENSITY, EXTERIOR_FLOOR, BASIN_FLOOR }
     public static final MapCodec<RegionFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3072).forGetter(RegionFunction::regionSize),
             Codec.intRange(32, 512).optionalFieldOf("border_width", 360).forGetter(RegionFunction::borderWidth),
@@ -18,7 +18,7 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
                         try {
                             return DataResult.success(Output.valueOf(s.toUpperCase(java.util.Locale.ROOT)));
                         } catch (IllegalArgumentException exception) {
-                            return DataResult.error(() -> "Unknown region output '" + s + "'; expected region, border, height, density, or exterior_floor");
+                            return DataResult.error(() -> "Unknown region output '" + s + "'; expected region, border, height, density, exterior_floor, or basin_floor");
                         }
                     },
                     o -> o.name().toLowerCase(java.util.Locale.ROOT)).fieldOf("output").forGetter(RegionFunction::output)
@@ -50,6 +50,8 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
                         lowest = Math.min(lowest, layout.surfaceHeight(x, z + 1, layout.sample(x, z + 1)));
                         yield (float) Math.ceil(lowest);
                     }
+                    // Deepslate basin under region foothills; also a material classification only.
+                    case BASIN_FLOOR -> layout.basinFloor(x, z, sample);
                 };
             }
 
@@ -79,6 +81,7 @@ public record RegionFunction(int regionSize, int borderWidth, Output output) imp
             case REGION -> Interval.of(0, 4);
             case BORDER -> Interval.of(0, 1);
             case HEIGHT, EXTERIOR_FLOOR -> Interval.of(8, 310);
+            case BASIN_FLOOR -> Interval.of(0, 310);
             case DENSITY -> Interval.of(-16, 16);
         };
     }

@@ -2,7 +2,6 @@ package c.cronus.fantasyterrain.worldgen;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -23,7 +22,6 @@ public final class BorderChunkMaterials {
     private static final ConcurrentLinkedQueue<LevelChunk> PENDING = new ConcurrentLinkedQueue<>();
     private static final ResourceKey<NoiseGeneratorSettings> SETTINGS = ResourceKey.create(Registries.NOISE_SETTINGS,
             Identifier.fromNamespaceAndPath("cronusfantasyterrain", "regions"));
-    private static final Identifier BIOME = Identifier.fromNamespaceAndPath("cronusfantasyterrain", "region_border");
 
     public static void onChunkLoad(ChunkEvent.Load event) {
         // Load fires before FULL promotion; never query the level/chunk neighbors in this callback.
@@ -65,9 +63,8 @@ public final class BorderChunkMaterials {
         }
         for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
             int bx = minX + x, bz = minZ + z;
-            boolean border = random.sampleBlockValueUncached(router.erosion(), bx, 0, bz) > 0.12f
-                    || chunk.getNoiseBiome(QuartPos.fromBlock(bx), 0, QuartPos.fromBlock(bz)).is(BIOME);
-            if (!border) continue;
+            // Same column test as BorderMaterialRule; foothill columns keep region stone above the basin.
+            if (random.sampleBlockValueUncached(router.erosion(), bx, 0, bz) <= RegionLayout.BORDER_THRESHOLD) continue;
             int top = tops[z * 16 + x];
             int left = x > 0 ? tops[z * 16 + x - 1] : neighborTop(level, bx - 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx - 1, 0, bz)));
             int right = x < 15 ? tops[z * 16 + x + 1] : neighborTop(level, bx + 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx + 1, 0, bz)));

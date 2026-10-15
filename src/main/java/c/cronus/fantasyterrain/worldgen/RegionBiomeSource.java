@@ -37,7 +37,7 @@ public final class RegionBiomeSource extends BiomeSource {
     @Override public BiomeResolver createResolver(Climate.Sampler sampler) {
         return (qx, qy, qz) -> {
             int x = QuartPos.toBlock(qx), z = QuartPos.toBlock(qz);
-            if (sampler.erosion().sampleValue(x, 0, z) > 0.12f) return mountainBiome;
+            if (sampler.erosion().sampleValue(x, 0, z) > RegionLayout.BORDER_THRESHOLD) return mountainBiome;
             int region = Math.clamp(Math.round(sampler.temperature().sampleValue(x, 0, z)), 0, 4);
             List<Holder<Biome>> pool = pools.get(region);
             float noise = sampler.humidity().sampleValue(x, 0, z);
