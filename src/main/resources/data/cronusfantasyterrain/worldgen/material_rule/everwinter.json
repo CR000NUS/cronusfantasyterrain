@@ -1,0 +1,7 @@
+{
+  "type": "cronusfantasyterrain:everwinter_palette",
+  "everwinter": "cronusfantasyterrain:everwinter_member",
+  "surface": "cronusfantasyterrain:biome_height",
+  "feature": "cronusfantasyterrain:everwinter_feature",
+  "ice_base": "cronusfantasyterrain:everwinter_ice_base"
+}

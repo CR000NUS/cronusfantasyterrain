@@ -9,14 +9,14 @@
     "height": 384
   },
   "noise_router": {
-    "chunk_surface_level": "cronusfantasyterrain:region_height",
+    "chunk_surface_level": "cronusfantasyterrain:biome_height",
     "continents": 0.0,
     "depth": 0.0,
     "erosion": "cronusfantasyterrain:region_border",
-    "final_density": "cronusfantasyterrain:region_terrain",
+    "final_density": "cronusfantasyterrain:biome_terrain",
     "ridges": 0.0,
     "temperature": "cronusfantasyterrain:region_id",
-    "vegetation": "cronusfantasyterrain:region_biomes"
+    "vegetation": "cronusfantasyterrain:region_districts"
   },
   "sea_level": 63,
   "spawn_target": []

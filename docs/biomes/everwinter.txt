@@ -1,0 +1,54 @@
+Everwinter
+Recorded: 2026-10-16
+
+Biome ID: cronusfantasyterrain:everwinter
+Region: Frozen Wastes (pool slot 2 of 5; one district per region)
+Status: Implemented custom biome (second version, rougher terrain 2026-10-16; awaiting in-game review).
+
+User design (2026-10-16)
+"It is a biome which is filled with winter, cold, ice and snow. The majority of the ground is covered with snow and ice blocks. Occasionally there are also parts of deepslate reaching out of the ground. The underground is a mix between deepslate and stone (and of course ores and stuff)."
+Terrain reference: a concept image (snow plains with wind-shaped drifts, raised glacier shelves with steep fractured ice walls, ice shards, dark rock breaking through the snow, distant mountains).
+
+User update (2026-10-16)
+"Bring in a bit more elevation change. Create hills made up of snow and ice (Small hills/piles made up of snow which appear more often and big snow/ice hills which appear a bit more rare). A few cliffs and tears in the ground which reveal deep ice crevasse." "Make the terrain overall more harsh and rough to pass through."
+References: the same concept image (snow foreground, a broken glacier shelf with columnar ice walls and a crevasse canyon, ice shards) and a close-up of a jumbled field of tabular ice blocks (seracs) separated by deep cracks.
+
+Terrain (EverwinterTerrain, on top of the shared region interior around Y=80; shares measured by everwinterTest)
+- Rolling ground: broad rises and hollows lifted about 10 blocks above the plain interior (swinging roughly -5 to +25), plus long wind-shaped dunes. 90% of the biome lies between about Y=84 and Y=117; extremes Y=66-179.
+- Small snow piles (frequent; about 0.7 per 40x40 blocks): wind-stretched heaps 2-7 blocks high, 6-14 blocks across, steeper on the lee side. Pure snow.
+- Big snow/ice hills (rarer; about 0.4 per 230x230 blocks, about 4% of the biome): broad mounds 18-42 blocks high, 45-85 blocks across. Snow hills are smooth; icy hills (about half) have a sheer wind-cut face of bare ice on one side and a craggy top.
+- Ice cliffs (a few): the ground steps up 10-20 blocks along long winding lines. In some stretches the step is a sheer, ragged ice cliff; elsewhere it is a slope a few dozen blocks wide, so there are ways around.
+- Crevasses (a few): long, roughly parallel, jagged tears in the ground (like crevasses across a flowing glacier), 3-12 blocks wide and about 18-34 blocks deep, tapering out at both ends; snow lip on top, ice walls down to the floor.
+- Serac fields (about 17% of the biome): broad patches of fractured glacier broken into jumbled ice blocks about 14 blocks across, each with its own height (typically 6-26 blocks above the ground, rare pinnacles up to 34, some collapsed) and a tilted top, separated by narrow cracks 2-12 blocks deep; some neighbouring blocks stay fused. Blocks step down towards the field margin, which ends in sheer, fractured ice walls. Hard to cross.
+- Crevasses and cracks together cover about 5% of the biome; floors never go below Y=66, so they stay dry (sea level 63).
+- Ice spires: rare sharp, slightly leaning shards 8-28 blocks tall.
+- Deepslate outcrops (about 2%): rough rock knobs up to 9 blocks above the snow, kept off serac fields and big hills.
+- The relief fades in over 96 blocks inside the biome edge and over 120 blocks from where the border mask reaches 0, so neighbouring biomes, the border mountains and the deepslate basin are untouched.
+
+Materials (EverwinterPalette, Y >= 0; below Y=0 stays vanilla)
+- Open ground: snow blocks 4 deep (1 on steep slopes), with patches of packed ice (about 12% of the surface).
+- Glacier ice sheet beneath the snow: packed ice with thin tilted blue-ice layers, about 1-9 blocks thick on open ground and reaching below the floor of every nearby crevasse or crack, so cliffs, cracks and crevasse walls show ice, not rock.
+- Snow piles: snow throughout. Big hills: 3 blocks of snow over ice, bare ice on steep faces.
+- Serac blocks and crevasse floors: glacier ice, with a single snow block on flat tops. Spires: packed and blue ice.
+- Outcrops: deepslate, with a little snow on flat tops.
+- Underground: stone and deepslate in large blobs (about 46% deepslate between Y=0 and Y=70), deepslate more common deeper down. Vanilla ores and tuff (stone and deepslate ore variants), copper and iron veins, caves.
+- Packed and blue ice are used instead of plain ice so torches do not melt the landscape.
+
+Biome settings (biome/everwinter.json)
+- Based on Snowy Plains: temperature -0.7, downfall 0.9, snowfall, frozen water, snow layers on top (freeze_top_layer).
+- Mobs as Snowy Plains (rabbits, polar bears, strays among the monsters).
+- Frozen Peaks music, slightly icier sky colour.
+- No trees, flowers, grass, mushrooms, sugar cane or pumpkins; no dirt, gravel, granite, diorite, andesite, sand/clay/gravel disks or surface lava lakes.
+
+Still to design
+Vegetation (if any), structures, custom mobs, and further Frozen Wastes biomes (Frostscar is planned).
+
+Sources (relative to repository root)
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterTerrain.java
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterPalette.java
+src/main/java/c/cronus/fantasyterrain/worldgen/BiomeTerrainFunction.java
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterMaterialRule.java
+src/main/resources/data/cronusfantasyterrain/worldgen/biome/everwinter.json
+src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/everwinter.json
+src/test/java/c/cronus/fantasyterrain/worldgen/EverwinterTest.java
+src/test/java/c/cronus/fantasyterrain/worldgen/EverwinterPreview.java

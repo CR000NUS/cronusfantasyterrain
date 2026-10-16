@@ -4,6 +4,9 @@
     "minecraft:bedrock_floor",
     "cronusfantasyterrain:region_border",
     "cronusfantasyterrain:region_basin",
+    "minecraft:overworld/copper_ore_vein",
+    "minecraft:overworld/iron_ore_vein",
+    "cronusfantasyterrain:everwinter",
     "minecraft:overworld"
   ]
 }

@@ -53,6 +53,7 @@ public final class RegionPreview {
         writeRimPreview(layout, output.resolveSibling("border-rim.png"));
         BasinSectionPreview.write(layout, output.resolveSibling("basin-section.png"));
         BorderSnowPreview.write(layout, output.resolveSibling("border-snow.png"));
+        DistrictPreview.write(layout, output.resolveSibling("biome-districts.png"));
     }
 
     private static void writeTerrainPreview(RegionLayout layout, Path output) throws Exception {

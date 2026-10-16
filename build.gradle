@@ -187,6 +187,20 @@ tasks.register('borderPaletteTest', JavaExec) {
     mainClass = 'c.cronus.fantasyterrain.worldgen.BorderPaletteTest'
 }
 tasks.named('check') { dependsOn tasks.named('borderPaletteTest') }
+tasks.register('everwinterTest', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.EverwinterTest'
+    workingDir = layout.projectDirectory.asFile
+}
+tasks.named('check') { dependsOn tasks.named('everwinterTest') }
+tasks.register('biomeDistrictTest', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.BiomeDistrictTest'
+    workingDir = layout.projectDirectory.asFile
+}
+tasks.named('check') { dependsOn tasks.named('biomeDistrictTest') }
 tasks.register('borderFeatureTest') {
     def resourceRoot = layout.projectDirectory.dir('src/main/resources/data/cronusfantasyterrain/worldgen')
     inputs.dir(resourceRoot)
@@ -219,6 +233,13 @@ tasks.register('regionPreview', JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = 'c.cronus.fantasyterrain.worldgen.RegionPreview'
     args layout.buildDirectory.file('reports/regions/preview.png').get().asFile.absolutePath
+    systemProperty 'java.awt.headless', 'true'
+}
+tasks.register('everwinterPreview', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.EverwinterPreview'
+    args layout.buildDirectory.file('reports/biomes/everwinter-map.png').get().asFile.absolutePath
     systemProperty 'java.awt.headless', 'true'
 }
 

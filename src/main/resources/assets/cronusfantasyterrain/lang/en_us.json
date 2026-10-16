@@ -1,14 +1,5 @@
 {
-  "itemGroup.cronusfantasyterrain": "Example Mod Tab",
-  "block.cronusfantasyterrain.example_block": "Example Block",
-  "item.cronusfantasyterrain.example_item": "Example Item",
-  "cronusfantasyterrain.configuration.title": "CronusFantasyTerrain Configs",
-  "cronusfantasyterrain.configuration.section.cronusfantasyterrain.common.toml": "CronusFantasyTerrain Configs",
-  "cronusfantasyterrain.configuration.section.cronusfantasyterrain.common.toml.title": "CronusFantasyTerrain Configs",
-  "cronusfantasyterrain.configuration.items": "Item List",
-  "cronusfantasyterrain.configuration.logDirtBlock": "Log Dirt Block",
-  "cronusfantasyterrain.configuration.magicNumberIntroduction": "Magic Number Text",
-  "cronusfantasyterrain.configuration.magicNumber": "Magic Number",
   "generator.cronusfantasyterrain.regions": "Fantasy Regions",
-  "biome.cronusfantasyterrain.region_border": "Region Border Mountains"
+  "biome.cronusfantasyterrain.region_border": "Region Border Mountains",
+  "biome.cronusfantasyterrain.everwinter": "Everwinter"
 }

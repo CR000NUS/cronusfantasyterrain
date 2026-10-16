@@ -9,7 +9,7 @@ Note
 Vanilla ice spike features are kept.
 
 Current behavior
-- Local biome noise picks this biome from its region's pool.
+- Forms exactly one district in each region of its pool (BiomeDistricts).
 - Surface rules, vegetation, mobs, structures and carvers are vanilla.
 - Terrain is the shared region interior (about Y=75-85); the biome does not shape it.
 

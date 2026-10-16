@@ -20,8 +20,10 @@ public final class RegionWorldgen {
     static {
         SOURCES.register("regions", () -> RegionBiomeSource.CODEC);
         FUNCTIONS.register("region", () -> RegionFunction.CODEC);
+        FUNCTIONS.register("biome_terrain", () -> BiomeTerrainFunction.CODEC);
         MATERIALS.register("border_palette", () -> BorderMaterialRule.CODEC);
         MATERIALS.register("region_basin", () -> BasinMaterialRule.CODEC);
+        MATERIALS.register("everwinter_palette", () -> EverwinterMaterialRule.CODEC);
     }
     public static void register(IEventBus bus) {
         SOURCES.register(bus);

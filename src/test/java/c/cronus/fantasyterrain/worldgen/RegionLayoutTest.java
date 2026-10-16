@@ -95,7 +95,8 @@ public final class RegionLayoutTest {
                     require(1 - side.edgeDistance() / 360.0 >= RegionLayout.RAMP_END, "Region transition lacks mountains");
                 }
                 require(Math.abs(height - neighborHeight) < 100, "Terrain seam at border");
-                require(height == layout.surfaceHeight(x, z, new RegionLayout.Sample(neighbor.region(), sample.border(), sample.edgeDistance())),
+                require(height == layout.surfaceHeight(x, z, new RegionLayout.Sample(neighbor.region(), sample.border(), sample.edgeDistance(),
+                        neighbor.cellX(), neighbor.cellZ(), neighbor.localX(), neighbor.localZ())),
                         "Changing region ownership changes border terrain");
             }
         }

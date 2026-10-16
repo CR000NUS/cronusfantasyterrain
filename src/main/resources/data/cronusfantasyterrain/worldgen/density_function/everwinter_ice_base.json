@@ -1,0 +1,6 @@
+{
+  "type": "cronusfantasyterrain:biome_terrain",
+  "region_size": 3800,
+  "border_width": 360,
+  "output": "ice_base"
+}

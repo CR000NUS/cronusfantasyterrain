@@ -1,19 +1,23 @@
 Frozen Wastes
 Recorded: 2026-10-10
-Updated: 2026-10-15
+Updated: 2026-10-16
 
-Status: Implemented theme with vanilla placeholder biomes.
+Status: Implemented theme; one custom biome (Everwinter) plus vanilla placeholders.
 Preset key: frozen_wastes
 Region index: 0
 
 Theme
 Frozen landscape. FrozenLand.java declares NAME = "Frozen Wastes" and REGION_INDEX = 0.
 
-Biome pool (vanilla placeholders)
-- minecraft:snowy_plains
-- minecraft:ice_spikes
-- minecraft:snowy_taiga
-- minecraft:frozen_river
+Biome pool (five biomes; each forms exactly one district per region)
+- minecraft:snowy_plains (placeholder)
+- minecraft:ice_spikes (placeholder)
+- cronusfantasyterrain:everwinter (custom, slot 2; see docs/biomes/everwinter.txt)
+- minecraft:snowy_taiga (placeholder)
+- minecraft:frozen_river (placeholder)
+
+Implemented custom biomes
+- Everwinter (2026-10-16, made rougher the same day): rolling snow ground with frequent snow piles and rarer big snow/ice hills, a few ice cliffs and deep crevasses, fields of jumbled serac blocks split by cracks, rare ice spires, occasional deepslate outcrops; glacier ice under the snow, stone/deepslate below.
 
 Planned custom biomes
 - Frostscar: large height differences with valleys, canyons, cliffs and steep mountains; mostly deepslate under snow, with ice-and-snow glaciers. Design only; see docs/biomes/frostscar.txt.
@@ -22,10 +26,10 @@ Earlier concepts
 - Ice Desert: Test World terrain prototype, not a biome. See docs/biomes/ice_desert.txt.
 
 Current generation
-Standard region behavior (see docs/regions.md): seeded regions about 3,072 blocks across, interior terrain around Y=75-85, shared Region Border mountains at region edges. No region-specific terrain, vegetation, structures or mobs yet.
+Standard region behavior (see docs/regions.md): seeded rounded-hexagon regions about 3,400 blocks across, shared Region Border mountains at region edges. Everwinter adds its own terrain and materials; the placeholder biomes keep the plain interior around Y=75-85.
 
 Still to design
-Final custom biomes, terrain, vegetation, structures and mobs.
+The remaining custom biomes (replacing the placeholders), vegetation, structures and mobs.
 
 Border mountains are shared by all regions and frozen; see docs/extra/project_notes.txt.
 

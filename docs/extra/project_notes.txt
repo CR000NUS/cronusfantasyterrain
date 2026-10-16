@@ -1,6 +1,6 @@
 Project notes and standing decisions
 Recorded: 2026-10-10
-Updated: 2026-10-15
+Updated: 2026-10-16
 
 STANDING DECISIONS (in force)
 
@@ -8,6 +8,8 @@ STANDING DECISIONS (in force)
 The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
 This covers the border mountain shape: RegionLayout terrain, border width, region partition and terrain density outputs. Material-only changes need their own explicit authorization.
 Revised on request 2026-10-15 (decisions 6 and 7); the freeze applies to the revised shape.
+Renewed and widened 2026-10-16 (after update_03_borderfin). The user said: "Now that the border of the regions look good, from now on do NOT change any of those unless i tell you to change it. If you have to change it in order to make biomes inside the region work, tell me."
+The freeze now covers everything about the borders: mountain shape, region partition and rim lobes (decisions 8-12), border width, terrain density outputs, border materials and snow, the deepslate basin, and the border biome. Work on biomes inside the regions must not touch any of it; if that work seems to need a border change, tell the user and wait for their decision.
 
 2. Border materials (2026-10-14 drawing, updated 2026-10-15)
 - Exposed faces: deepslate (plain, no tuff) below the snow.
@@ -68,6 +70,23 @@ The user asked for the rim of the border to "reach more randomly into the region
 - Final: the whole mountain front (ramp and massif) pushes up to RIM_REACH = 180 blocks into a region in broad, smooth lobes and bays a few hundred blocks across, everywhere along the rim. No aprons; the ramp keeps its normal steep profile. Reach is one-sided, so no belt gets thinner, and it never forms detached islands.
 - Region interiors (no border influence at all) shrink from about 60% to about 53% of the world.
 
+13. Everwinter, first custom interior biome (2026-10-16)
+The user asked to start on the regions themselves, first the Frozen Wastes, first biome Everwinter: "filled with winter, cold, ice and snow. The majority of the ground is covered with snow and ice blocks. Occasionally there are also parts of deepslate reaching out of the ground. The underground is a mix between deepslate and stone (and of course ores and stuff)." Terrain reference: concept image of snow plains, glacier shelves with fractured ice walls, ice shards and dark rock.
+- Implemented as cronusfantasyterrain:everwinter in Frozen Wastes pool slot 2 of 5 (placeholders kept around it). See docs/biomes/everwinter.txt.
+- Biome terrain is a new layer on top of the region terrain and fades to nothing before any border column; borders, basin and border materials are unchanged (decision 1 respected).
+
+14. One district per biome in every region (2026-10-16)
+The user said the biomes inside a region were "pretty mixed up like sometimes a biome appears twice and they appear rather small" and asked that each region has only 4-6 biomes and each appears only once in its region.
+- Pools accept 4-6 biomes; a pool listing the same biome twice is rejected.
+- Local biome noise replaced by BiomeDistricts: each region is split into one large, connected slice per pool biome (seeded ring Voronoi with gently warped boundaries, biome order shuffled per region). Slices cross the mountain foot steeply, so no slivers form along the rim.
+- Everwinter relief now fades over 40 blocks from its district boundary. Borders, region partition and terrain are unchanged (decision 1 respected); RegionLayout.Sample only exposes the owning region cell and its local position.
+
+15. Rougher Everwinter (2026-10-16)
+The user asked for "a bit more elevation change", "hills made up of snow and ice (Small hills/piles made up of snow which appear more often and big snow/ice hills which appear a bit more rare)", "A few cliffs and tears in the ground which reveal deep ice crevasse", and "the terrain overall more harsh and rough to pass through", with two reference images (broken glacier with ice walls and a crevasse canyon; a jumbled field of ice blocks).
+- Everwinter ground lifted about 10 blocks with larger swells; frequent small snow piles; rarer big snow/ice hills (icy ones with a sheer ice face); a few ice cliffs; long, deep, roughly parallel crevasses; glacier shelves replaced by serac fields of jumbled ice blocks split by cracks.
+- A glacier ice sheet now lies under the snow cover and reaches below every nearby cut, so crevasse and cliff walls are ice. Cuts stop at Y=66 to stay dry.
+- Relief fades in over 96 blocks (was 40) from the district boundary because the biome now sits higher than its neighbours. Borders untouched (decision 1).
+
 DECISION HISTORY
 
 2026-10-10  Border terrain accepted and frozen (decision 1).
@@ -85,14 +104,18 @@ DECISION HISTORY
 2026-10-15  Regions made rounded hexagons that fill their space; belts about 400 blocks everywhere (decision 11).
 2026-10-16  Mountain front changed on request: whole front pushes up to 180 blocks into the regions in broad lobes; low-apron spurs tried and rejected (decision 12).
 2026-10-16  Material-only change requested by the user: snow transition reaches further down (first patches Y=179 instead of 191, band 36 instead of 24 blocks, full cap unchanged at Y=264). Geometry untouched.
+2026-10-16  Borders committed as update_03_borderfin. Border freeze renewed and widened to all border aspects, materials and snow included (decision 1).
+2026-10-16  Everwinter implemented in the Frozen Wastes (decision 13): biome terrain layer, Everwinter relief and materials, pool grown to five entries. Borders untouched.
+2026-10-16  Rougher Everwinter (decision 15): more elevation, snow piles, big snow/ice hills, ice cliffs, deep crevasses, serac fields. Borders untouched.
+2026-10-16  Biome districts (decision 14): every pool biome exactly once per region as one large district; pools 4-6 distinct biomes. Borders untouched.
 2026-10-15  Documentation cleaned up. docs/biomes/jagged_peaks.txt removed (superseded by region_border.txt).
 
 PROJECT STATUS
 
 - Eleven regions confirmed. Five are generated with vanilla placeholder pools: Frozen Wastes, Cold Meadows, Scorched Lands, Verdant Valley, Crystal Peaks. Six are planned with no design yet: Blooming Highlands, Dry Dunes, Enchanted Groves, Land of the Giants, Misty Marshes, Shadow Wilds.
-- Twenty vanilla placeholder biomes (four per region) plus one custom biome, Region Border.
+- Twenty vanilla placeholder biomes (four per region) plus two custom biomes: Region Border and Everwinter (Frozen Wastes).
 - Frostscar is a planned custom biome for Frozen Wastes. Ice Desert is an earlier Test World prototype, not a biome.
-- Not implemented: custom biome terrain, custom cave biomes, mountain passes, oceans or coastlines. The Nether and End are vanilla.
+- Biome terrain exists for Everwinter only. Not implemented: custom cave biomes, mountain passes, oceans or coastlines. The Nether and End are vanilla.
 - Targets Minecraft 26.3, NeoForge 26.3.0.43-beta, Java 25.
 
 DOCUMENTATION LAYOUT

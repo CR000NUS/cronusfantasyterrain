@@ -100,7 +100,8 @@ public final class RegionLayout {
         int region = Math.floorMod(winnerCellX + 2 * winnerCellZ + (int) seed, REGION_COUNT);
         double t = Math.clamp(1 - edgeDistance / borderWidth, 0, 1);
         float border = (float) (t * t * (3 - 2 * t));
-        return new Sample(region, border, (float) edgeDistance);
+        return new Sample(region, border, (float) edgeDistance, winnerCellX, winnerCellZ,
+                (float) (sampleX - siteX(winnerCellX, winnerCellZ)), (float) (sampleZ - siteZ(winnerCellX, winnerCellZ)));
     }
 
     /**
@@ -295,7 +296,11 @@ public final class RegionLayout {
     private static double unit(long hash) { return (hash >>> 11) * 0x1.0p-53; }
     private static double square(double value) { return value * value; }
 
-    public record Sample(int region, float border, float edgeDistance) {}
+    /**
+     * {@code cellX}/{@code cellZ} identify the owning region's grid cell and {@code localX}/{@code localZ} give the
+     * position relative to its centre in the bent plane the region shape is built in (for biome districts).
+     */
+    public record Sample(int region, float border, float edgeDistance, int cellX, int cellZ, float localX, float localZ) {}
 
     /** Every ridge is grounded: a column contains no floating slabs, holes, or carved pocket templates. */
     public record TerrainColumn(float surfaceHeight, float border) {
