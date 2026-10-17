@@ -44,6 +44,8 @@ final class BasinSectionPreview {
                     case DEEPSLATE -> DEEPSLATE;
                     case TUFF -> TUFF;
                     case SNOW -> SNOW;
+                    // Everwinter fringe ice never appears in select() (no growth); listed for completeness.
+                    case PACKED_ICE, BLUE_ICE -> SNOW;
                 };
                 else if (y < 0 || y < basin) color = DEEPSLATE;
                 else if (y == top) color = GRASS;

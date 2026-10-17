@@ -3,7 +3,7 @@ Recorded: 2026-10-16
 
 Biome ID: cronusfantasyterrain:everwinter
 Region: Frozen Wastes (pool slot 2 of 5; one district per region)
-Status: Implemented custom biome (seventh version: two or three groups of 4-7 huge tilted ground plates per biome, 2026-10-17; awaiting in-game review).
+Status: Implemented custom biome (eleventh version: Everwinter's terrain and glaciers run up onto the border mountains, 2026-10-17; awaiting in-game review).
 
 User design (2026-10-16)
 "It is a biome which is filled with winter, cold, ice and snow. The majority of the ground is covered with snow and ice blocks. Occasionally there are also parts of deepslate reaching out of the ground. The underground is a mix between deepslate and stone (and of course ores and stuff)."
@@ -30,6 +30,23 @@ User feedback after the fourth version (2026-10-17)
 User feedback after the in-game test of the sixth version (2026-10-17)
 The terrain and the tilted ground plates "look good" (screenshot: one huge plate tilted up to a sheer ice face, its low end sunk behind a ground wall). "Whenever there is 1 broken glacier plate, there should be at least 3 and at most 6 or 7 others right next to it. Also scale them up a little bit more. Also give them a slightly higher chance to appear more often. Maybe those glacier-plate-groups of 3 to 7 of these plates can appear twice or thrice in the biome."
 
+User feedback on the plate groups (2026-10-17)
+The plates "look good", but the flat snow ground between them should be "more broken up, deeper (at a lower height) and more jagged and like impossible to pass through". Two kinds of space between plates: when the plates are connected (only 1 or 2 blocks apart), "deep tears 1 to 2 block wide" in the ground, also at the plates' outer faces (sketch); when the plates are further apart, "the ground in between should still be rather deep but jagged and impossible to pass through" (sketch: spiky ice rubble sunk below both plates).
+
+User feedback on the steps (2026-10-17)
+"I TOLD YOU TO REVERT THE DAMN CHANGES FROM BEFORE AND YET ITS STILL ALL JAGGED AND MESSED UP TERRAIN! MAKE THE DAMN GROUND FLAT WITH SIMPLE ELEVATION CHANGES BETWEEN THE DAMN PLATES!" The terrace steps of decision 22 looked as jagged as the rubble; the ground between plates is now plain snow ground with gentle rises and dips only (decision 23).
+
+User feedback on the rubble (2026-10-17)
+1. "For the jagged, wider spaces between the glacier plates: Revert the changes to how it was before and simply put some steep elevation change in them. Keep the 1-2 block wide deep tears in the ground around the plates."
+2. "Make sure there is no water spawning. There can not be underwater caves in the Everwinter biome." (screenshot: a water-filled cave between ice walls) "Water can still be placed by the player but there can not be water naturally spawning inside the biome."
+3. "Make these ice spikes a bit thicker and a bit taller. Also make some have a slight curve to them."
+
+User feedback on the border fringe (2026-10-17)
+"How many times am i supposed to say to make things look natural!!! ... Stop adding terrain as single points in the biome! Fill up the terrain with hills just like the rest of the biome and add the glacier on top of it! Don't just completely ignore the existing biome and add random tiny crap on top of it!" (Screenshot: scattered ice blocks on the flat strip before the mountains.) Decision 25: the scattered chunks are gone; Everwinter's own terrain fills the strip and climbs the mountain foot, with glacier tongues on top.
+
+User request for the border transition (2026-10-17)
+"The next thing i want you to change is the transition between the Everwinter biome and the region border ... i want it to be an actual transition like both biomes blending together a little bit. In fact leave the terrain of the region as is but make the Everwinter biome sort of grow onto the mountain side. Have snow and chunks of ice and glacier along the border where it meets the Everwinter biome." (Screenshot: a flat snow strip ending at a dark deepslate mountain wall.) An explicit border change, decision 24.
+
 Terrain (EverwinterTerrain, on top of the shared region interior around Y=80; shares measured by everwinterTest)
 The features grow out of the ground instead of sitting on a flat plain, and a slowly varying shelter field (about half the biome each) decides how they meet it: sheltered stretches get long snow ramps and snow banked against cliffs and outcrops; wind-scoured stretches keep short steep rises and sheer edges. The transitions are shaped by the terrain itself (full blocks only; no generated snow layer blocks).
 - Rolling ground: broad rises and hollows lifted about 10 blocks above the plain interior, medium rolls (about +/-4 blocks over 150 blocks) and wind ridges that are strong in some stretches and calm in others. 90% of the biome lies between about Y=85 and Y=115; extremes Y=66-164.
@@ -38,9 +55,10 @@ The features grow out of the ground instead of sitting on a flat plain, and a sl
 - Big snow/ice hills (rarer, about 5% of the biome): mounds 18-42 blocks high, 45-85 blocks across, on a broad low foot (about twice as wide, snow ground) that merges into the surrounding ground, with a long snow tail stretching downwind. Snow hills are smooth; icy hills (about half) have a sheer wind-cut face of bare ice on one side and a craggy top.
 - Ice cliffs (a few): the ground steps up 10-20 blocks along long winding lines. In wind-scoured stretches the step is mostly a sheer, ragged ice cliff; where sheltered it is mostly a slope, and the remaining cliffs have snow banked against their lower half.
 - Crevasses (a few): long, roughly parallel, jagged tears in the ground (like crevasses across a flowing glacier), 3-12 blocks wide and about 18-34 blocks deep, tapering out at both ends; snow lip on top, ice walls down to the floor.
-- Serac fields (two or three per biome, plates about 10-15% of the biome): groups of 4-7 huge pieces of the glacier ground itself, broken off and tilted, lying next to each other: one plate in the middle and the rest in a ring around it, with 16-36 blocks of unbroken snow ground between neighbouring plates (no piles, hills or outcrops on or within about 40 blocks of a plate). Each Everwinter district gets two or three fields (random per region; a small district may get only one), placed well inside the biome (full relief at the field's centre) and at least 50 blocks apart beyond their reach, so fields never merge into one. Plates have irregular, wobbly outlines about 115-235 blocks across (the decision-19 size scaled by another 1.2; cut back where they meet a neighbour) and keep the ground's own rolls on top. Each is tilted 5-30 degrees in its own direction about its middle: the low end sinks below the surrounding ground, which breaks off in an ice wall down to it (at most 20 blocks deep), and the high end rises to a sheer ice face (up to about 35-45 blocks above the ground on long, steep plates, which level off) with a narrow crack 6-14 blocks deep at its foot.
+- Serac fields (two or three per biome, plates about 10-15% of the biome): groups of 4-7 huge pieces of the glacier ground itself, broken off and tilted, lying next to each other: one plate in the middle and the rest in a ring around it (no piles, hills or outcrops on or within about 40 blocks of a plate). Each Everwinter district gets two or three fields (random per region; a small district may get only one), placed well inside the biome (full relief at the field's centre) and at least 50 blocks apart beyond their reach, so fields never merge into one. Plates have irregular, ragged outlines about 115-235 blocks across (cut back where they meet a neighbour) and keep the ground's own rolls on top. Each is tilted 5-30 degrees in its own direction about its middle: the low end sinks below the surrounding ground, which breaks off in an ice wall down to it (at most 20 blocks deep), and the high end rises to a sheer ice face (up to about 35-45 blocks above the ground on long, steep plates, which level off) with a crack 1-2 blocks wide and 10-22 blocks deep at its foot. Between two neighbouring plates: about 45% of the pairs touch, split only by a jagged tear 1-2 blocks wide and 26-36 blocks deep (floor never below Y=66); the others stand 16-36 blocks apart over plain, clean snow ground with only gentle, broad rises and dips (up to about 5 blocks over some 50 blocks; no steps, spikes or rubble), which also fills the space where two plates do not quite reach each other. No hills, snow piles, outcrops or ice spires on or within about 40 blocks of a plate group.
+- Border transition (decisions 24-25): on Everwinter's side of the border the biome's full terrain (rolling ground, ridges, snow piles, big hills, cliffs) runs right up to the mountain foot instead of fading into a flat strip, and continues onto the mountain ramp on top of the unchanged rock, fading out in uneven tongues 130-200 blocks into the belt and below about Y=160-200. Broad glacier tongues lie on top of it near the mountains (5-14 blocks of ice with sheer ice-cliff edges, about half of the ground at the mountain foot, thinning out some 220 blocks into the region). Where Everwinter's relief is strong the mountain foot gets Everwinter's own materials (snow cover, ice sheet, glacier ice); above, patchy frost (snow on gentle and moderate slopes, glacier ice on some steep faces, deepslate elsewhere) climbs about 80 blocks further to meet the mountains' snowline. No scattered single ice blocks. Other biomes' sides of the border are unchanged.
 - Crevasses and cracks together cover well under 1% of the biome; floors never go below Y=66, so they stay dry (sea level 63).
-- Ice spires: rare sharp, slightly leaning shards 8-28 blocks tall.
+- Ice spires: rare, thick, tapering shards 14-42 blocks tall with a base 8-18 blocks across, leaning slightly; about 40% curve (their tip drifts further sideways the higher it gets, the curve filled in below as a buttress).
 - Deepslate outcrops (about 3%): rough rock knobs up to 9 blocks above the snow, kept off serac fields and big hills; snow banks up around them where sheltered.
 - The relief fades in over 96 blocks inside the biome edge and over 120 blocks from where the border mask reaches zero, so neighbouring biomes, the border mountains and the deepslate basin are untouched.
 
@@ -50,12 +68,13 @@ Materials (EverwinterPalette, Y >= 0; below Y=0 stays vanilla)
 - Snow piles, hill tails and banked snow: snow throughout (16 blocks deep). Big hills: 3 blocks of snow over ice, bare ice on steep faces.
 - Serac plates and crevasse floors: glacier ice, with a single snow block on gentle tops (bare ice on steep ones). Spires: packed and blue ice.
 - Outcrops: deepslate, with a little snow on flat tops.
-- Underground: stone and deepslate in large blobs (about 46% deepslate between Y=0 and Y=70), deepslate more common deeper down. Vanilla ores and tuff (stone and deepslate ore variants), copper and iron veins, caves.
+- Underground: stone and deepslate in large blobs (about 46% deepslate between Y=0 and Y=70), deepslate more common deeper down. Vanilla ores and tuff (stone and deepslate ore variants), copper and iron veins, dry caves.
 - Packed and blue ice are used instead of plain ice so torches do not melt the landscape.
 - On top, vanilla freeze_top_layer adds a single snow layer as in the neighbouring snowy biomes.
 
 Biome settings (biome/everwinter.json)
 - Based on Snowy Plains: temperature -0.7, downfall 0.9, snowfall, frozen water, a single snow layer on top (freeze_top_layer, so the edges blend with the neighbouring snowy biomes).
+- No natural water (decision 22): no water springs, and the feature cronusfantasyterrain:everwinter/dry (last feature step, before freeze_top_layer) drains the water the world puts into every cave below sea level, so caves are dry air; where water of a neighbouring biome touches them, packed ice seals the cave. Player-placed water still works. Lava springs and deep lava lakes stay.
 - Mobs as Snowy Plains (rabbits, polar bears, strays among the monsters).
 - Frozen Peaks music, slightly icier sky colour.
 - No trees, flowers, grass, mushrooms, sugar cane or pumpkins; no dirt, gravel, granite, diorite, andesite, sand/clay/gravel disks or surface lava lakes.
@@ -67,6 +86,10 @@ Sources (relative to repository root)
 src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterTerrain.java
 src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterPalette.java
 src/main/java/c/cronus/fantasyterrain/worldgen/BiomeTerrainFunction.java
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterColumns.java
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterGroups.java
+src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterDryFeature.java
+src/main/java/c/cronus/fantasyterrain/worldgen/BorderPalette.java (selectFringe)
 src/main/java/c/cronus/fantasyterrain/worldgen/EverwinterMaterialRule.java
 src/main/resources/data/cronusfantasyterrain/worldgen/biome/everwinter.json
 src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/everwinter.json

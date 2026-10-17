@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.densityfunction.DensityFunction;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.material.rule.MaterialRule;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
@@ -17,6 +18,8 @@ public final class RegionWorldgen {
             DeferredRegister.create(Registries.DENSITY_FUNCTION_TYPE, CronusFantasyTerrain.MODID);
     private static final DeferredRegister<MapCodec<? extends MaterialRule>> MATERIALS =
             DeferredRegister.create(Registries.MATERIAL_RULE_TYPE, CronusFantasyTerrain.MODID);
+    private static final DeferredRegister<MapCodec<? extends Feature>> FEATURES =
+            DeferredRegister.create(Registries.FEATURE_TYPE, CronusFantasyTerrain.MODID);
     static {
         SOURCES.register("regions", () -> RegionBiomeSource.CODEC);
         FUNCTIONS.register("region", () -> RegionFunction.CODEC);
@@ -24,11 +27,13 @@ public final class RegionWorldgen {
         MATERIALS.register("border_palette", () -> BorderMaterialRule.CODEC);
         MATERIALS.register("region_basin", () -> BasinMaterialRule.CODEC);
         MATERIALS.register("everwinter_palette", () -> EverwinterMaterialRule.CODEC);
+        FEATURES.register("everwinter_dry", () -> EverwinterDryFeature.CODEC);
     }
     public static void register(IEventBus bus) {
         SOURCES.register(bus);
         FUNCTIONS.register(bus);
         MATERIALS.register(bus);
+        FEATURES.register(bus);
         NeoForge.EVENT_BUS.addListener(BorderChunkMaterials::onChunkLoad);
         NeoForge.EVENT_BUS.addListener(BorderChunkMaterials::onServerTick);
         NeoForge.EVENT_BUS.addListener(BorderChunkMaterials::onServerStopping);

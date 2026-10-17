@@ -5,7 +5,7 @@ package c.cronus.fantasyterrain.worldgen;
  * the terrain and fades out through a band of snow patches instead of a cut at one fixed Y.
  */
 public final class BorderPalette {
-    public enum Material { DEEPSLATE, SNOW, TUFF }
+    public enum Material { DEEPSLATE, SNOW, TUFF, PACKED_ICE, BLUE_ICE }
     /** Average snowline (middle of the patchy band). The local line wanders by up to about ±17 blocks around it. */
     public static final int SNOW_LINE = 214;
     /** Height of the patchy transition band around the local snowline. */
@@ -22,6 +22,26 @@ public final class BorderPalette {
         // Underground host rock is deepslate, with a small amount of tuff. Ores run later.
         return chance(seed, Math.floorDiv(x, 4), Math.floorDiv(y, 4), Math.floorDiv(z, 4), 4) < 0.04
                 ? Material.TUFF : Material.DEEPSLATE;
+    }
+
+    /**
+     * Border palette just beyond where Everwinter's materials take over the mountain side (decision 25,
+     * {@link EverwinterColumns}): patchy frost on the outdoor rock, snow on gentle and moderate slopes and
+     * ledges, glacier ice on some steep faces, deepslate elsewhere. Without growth this is exactly {@link #select}.
+     */
+    public static Material selectFringe(long seed, int x, int y, int z, int top, int exteriorFloor, boolean gentle, double growth) {
+        Material rock = select(seed, x, y, z, top, exteriorFloor, gentle);
+        if (growth <= 0 || y < exteriorFloor || rock == Material.SNOW) return rock;
+        double frost = growth + 0.35 * smooth(seed, x / 16.0, z / 16.0, 20) + 0.1 * chance(seed, x, 0, z, 21) - 0.6;
+        if (frost <= 0) return rock;
+        if (top - y < 2 && (gentle || top - exteriorFloor <= 4)) return Material.SNOW;
+        return frost > 0.25 ? glacierIce(seed, x, y, z) : rock;
+    }
+
+    /** Glacier ice: packed ice with thin, gently tilted blue-ice layers. */
+    private static Material glacierIce(long seed, int x, int y, int z) {
+        double layer = smooth(seed, x / 40.0, z / 40.0, 22) * 2 + y / 3.0;
+        return Math.abs(layer - Math.round(layer)) < 0.12 ? Material.BLUE_ICE : Material.PACKED_ICE;
     }
 
     /** Lowest Y that can ever receive snow; everything below is plain deepslate outdoors. */

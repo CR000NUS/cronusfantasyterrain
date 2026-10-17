@@ -47,6 +47,11 @@ public final class BorderChunkMaterials {
                 || !generator.generatorSettings().is(SETTINGS)) return;
         var random = level.getChunkSource().randomState();
         var router = generator.generatorSettings().value().noiseRouter();
+        // Everwinter on the mountain foot (decision 25): columns it has taken over keep Everwinter's materials,
+        // the columns just beyond keep the same frost as the material rule.
+        var functions = level.registryAccess().lookupOrThrow(Registries.DENSITY_FUNCTION);
+        var fringe = functions.getValue(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "everwinter_fringe"));
+        var everwinter = functions.getValue(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "everwinter_member"));
         long seed = random.getOrCreateRandomFactory(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "border_palette"))
                 .fromHashOf("patches").nextLong();
         int minX = chunk.getPos().getMinBlockX(), minZ = chunk.getPos().getMinBlockZ();
@@ -65,6 +70,7 @@ public final class BorderChunkMaterials {
             int bx = minX + x, bz = minZ + z;
             // Same column test as BorderMaterialRule; foothill columns keep region stone above the basin.
             if (random.sampleBlockValueUncached(router.erosion(), bx, 0, bz) <= RegionLayout.BORDER_THRESHOLD) continue;
+            if (everwinter != null && random.sampleBlockValueUncached(everwinter, bx, 0, bz) >= 0.5f) continue;
             int top = tops[z * 16 + x];
             int left = x > 0 ? tops[z * 16 + x - 1] : neighborTop(level, bx - 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx - 1, 0, bz)));
             int right = x < 15 ? tops[z * 16 + x + 1] : neighborTop(level, bx + 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx + 1, 0, bz)));
@@ -72,6 +78,7 @@ public final class BorderChunkMaterials {
             int south = z < 15 ? tops[(z + 1) * 16 + x] : neighborTop(level, bx, bz + 1, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx, 0, bz + 1)));
             int floor = Math.min(top, Math.min(Math.min(left, right), Math.min(north, south)) + 1);
             boolean gentle = Math.abs(right - left) < 4 && Math.abs(south - north) < 4;
+            double growth = fringe == null ? 0 : random.sampleBlockValueUncached(fringe, bx, 0, bz);
             for (int y = chunk.getMaxY(); y >= chunk.getMinY(); y--) {
                 pos.set(bx, y, bz);
                 BlockState old = chunk.getBlockState(pos);
@@ -85,7 +92,7 @@ public final class BorderChunkMaterials {
                 // Keep the approved underground ore variants; remove ordinary stone ores and foreign blobs.
                 String name = BuiltInRegistries.BLOCK.getKey(old.getBlock()).getPath();
                 if (y < floor && name.startsWith("deepslate_") && name.endsWith("_ore")) continue;
-                BlockState replacement = BorderMaterialRule.state(BorderPalette.select(seed, bx, y, bz, top, floor, gentle));
+                BlockState replacement = BorderMaterialRule.state(BorderPalette.selectFringe(seed, bx, y, bz, top, floor, gentle, growth));
                 if (old != replacement) chunk.setBlockState(pos, replacement, 0);
             }
         }

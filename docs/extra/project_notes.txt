@@ -116,6 +116,34 @@ After the in-game test of decision 19 the user liked the terrain and the tilted 
 - Plates scaled by another 1.2 (about 115-235 blocks across).
 - Fields are placed per Everwinter district instead of on a random grid: two or three per district (a small district may get one), well inside the biome and apart from each other. Plates cover about 10-15% of the biome.
 
+21. Tears and rubble between serac plates (2026-10-17)
+The user wanted the flat snow ground between the plates "more broken up, deeper (at a lower height) and more jagged and like impossible to pass through": touching plates (1-2 blocks apart) split by "deep tears 1 to 2 block wide", plates further apart over ground that is "still rather deep but jagged and impossible to pass through". This replaces the 16-36 blocks of open snow ground of decision 18.
+- About 45% of neighbouring pairs touch, split by a tear 1-2 blocks wide and 26-36 blocks deep; the rest stand 12-28 blocks apart over a pit of jagged ice rubble 14-22 blocks deep, broken into 2x2 shards with spikes and holes. Rubble also fills space the plates do not reach.
+- The crack at each high face is now 1-2 blocks wide and 10-22 blocks deep. Ring plates sit a little closer to the middle plate.
+
+22. Steps between plates, no natural water, bigger spires (2026-10-17)
+"For the jagged, wider spaces between the glacier plates: Revert the changes to how it was before and simply put some steep elevation change in them. Keep the 1-2 block wide deep tears." "Make sure there is no water spawning. There can not be underwater caves in the Everwinter biome ... Water can still be placed by the player." "Make these ice spikes a bit thicker and a bit taller. Also make some have a slight curve to them."
+- Rubble of decision 21 removed: wider gaps are again 16-36 blocks of snow ground at ground level, now broken by steep terrace steps (up to 12 blocks). Tears between touching plates and the cracks at the high faces stay.
+- No natural water: spring_water removed from Everwinter; a new feature (everwinter/dry, last step) drains cave water in Everwinter columns (the preset has no aquifers, so all caves below sea level flood) and seals contact with neighbouring-biome water with packed ice. The global fluid settings and the borders are unchanged.
+- Ice spires 14-42 blocks tall (was 8-28), base radius 4-9 (was 3-7); about 40% curve.
+
+23. Plain ground between plates (2026-10-17)
+The terrace steps of decision 22 looked just as jagged in-game: "I TOLD YOU TO REVERT THE DAMN CHANGES FROM BEFORE AND YET ITS STILL ALL JAGGED AND MESSED UP TERRAIN! MAKE THE DAMN GROUND FLAT WITH SIMPLE ELEVATION CHANGES BETWEEN THE DAMN PLATES!"
+- Between plates further apart: the plain snow ground of decision 20 plus only gentle, broad rises and dips (up to about 5 blocks over some 50 blocks). No steps, spikes or rubble; never reintroduce jagged ground there.
+- No ice spires on or within about 40 blocks of a plate group (as already for hills, piles and outcrops). Tears between touching plates stay.
+
+24. Everwinter grows onto the border mountains (2026-10-17)
+Explicit border change requested by the user: "i want it to be an actual transition like both biomes blending together a little bit. In fact leave the terrain of the region as is but make the Everwinter biome sort of grow onto the mountain side. Have snow and chunks of ice and glacier along the border where it meets the Everwinter biome."
+- Only on Everwinter's side of the border; the mountain rock (RegionLayout terrain, region_height, partition, border width) is unchanged. Other biomes' borders are unchanged.
+- From the fading edge strip (120 blocks before the belt) up the ramp (150-260 blocks into the belt, up to about Y=190-228): snow on gentle and moderate slopes, glacier ice on many steep faces, glacier ice sheets and loose ice chunks on top of the rock (at most 12 blocks).
+- New biome_terrain output fringe (everwinter_fringe.json); region_border.json passes fringe and cover (biome_height) to the border palette, and BorderChunkMaterials repaints with the same BorderPalette.selectFringe, so the ice survives the repaint. Without fringe the border palette is exactly the old one (checked by everwinterTest). The border freeze (decision 1) still applies to everything else.
+
+25. Everwinter's terrain fills the mountain foot (2026-10-17)
+The fringe of decision 24 (scattered ice chunks and sheets on the flat fading strip) looked unnatural: "Stop adding terrain as single points in the biome! Fill up the terrain with hills just like the rest of the biome and add the glacier on top of it!"
+- On Everwinter's side the relief no longer fades out before the border: full relief up to the mountain foot, then fading up the ramp (130-200 blocks into the belt, below about Y=160-200) on top of the unchanged rock. No scattered chunks.
+- Broad glacier tongues (5-14 blocks, sheer edges) on top near the mountains. Everwinter's materials take over the border columns where its relief is strong (border rule steps aside above the ice-sheet bed, repaint skips them); patchy frost reaches 80 blocks further up.
+- Never place features as isolated points on otherwise untouched ground; extend the biome's own terrain instead.
+
 DECISION HISTORY
 
 2026-10-10  Border terrain accepted and frozen (decision 1).
@@ -135,6 +163,11 @@ DECISION HISTORY
 2026-10-16  Material-only change requested by the user: snow transition reaches further down (first patches Y=179 instead of 191, band 36 instead of 24 blocks, full cap unchanged at Y=264). Geometry untouched.
 2026-10-16  Borders committed as update_03_borderfin. Border freeze renewed and widened to all border aspects, materials and snow included (decision 1).
 2026-10-16  Everwinter implemented in the Frozen Wastes (decision 13): biome terrain layer, Everwinter relief and materials, pool grown to five entries. Borders untouched.
+2026-10-17  Everwinter's own terrain and glacier tongues fill the mountain foot instead of scattered chunks (decision 25). Other borders untouched.
+2026-10-17  Everwinter grows onto the border mountains on its side: snow, glacier ice and ice chunks on the unchanged rock (decision 24, explicit border change). Other borders untouched.
+2026-10-17  Plain ground with gentle rises between plates, no spires in plate groups (decision 23). Borders untouched.
+2026-10-17  Steep steps instead of rubble between plates, no natural water in Everwinter, thicker and taller (some curved) spires (decision 22). Borders untouched.
+2026-10-17  Deep tears and jagged rubble between serac plates instead of flat snow ground (decision 21). Borders untouched.
 2026-10-17  Serac plate groups: 4-7 plates each, two or three groups per biome, plates 1.2 times larger (decision 20). Borders untouched.
 2026-10-17  Serac plates are huge tilted pieces of the ground, 2.5-3.5 times larger (decision 19). Borders untouched.
 2026-10-17  Separate serac plates with wide snow gaps, tilted slabs rising to a sheer face (decision 18). Borders untouched.

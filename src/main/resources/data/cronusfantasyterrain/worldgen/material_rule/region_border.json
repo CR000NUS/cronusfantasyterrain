@@ -2,5 +2,9 @@
   "type": "cronusfantasyterrain:border_palette",
   "border": "cronusfantasyterrain:region_border",
   "surface": "cronusfantasyterrain:region_height",
-  "exterior_floor": "cronusfantasyterrain:border_exterior_floor"
+  "exterior_floor": "cronusfantasyterrain:border_exterior_floor",
+  "fringe": "cronusfantasyterrain:everwinter_fringe",
+  "cover": "cronusfantasyterrain:biome_height",
+  "everwinter": "cronusfantasyterrain:everwinter_member",
+  "ice_base": "cronusfantasyterrain:everwinter_ice_base"
 }

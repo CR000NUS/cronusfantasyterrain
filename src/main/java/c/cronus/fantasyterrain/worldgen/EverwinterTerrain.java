@@ -39,16 +39,25 @@ public final class EverwinterTerrain {
     private static final double PLATE_RADIUS_MIN = 19, PLATE_RADIUS_MAX = 28, PLATE_SCALE_MIN = 2.5, PLATE_SCALE_MAX = 3.5;
     private static final double GROW = 1.2;
     /** Ring plates sit RING_SPACING times the sum of their and the middle plate's radius from the middle. */
-    private static final double RING_SPACING = 0.8;
+    private static final double RING_SPACING = 0.72;
     /** Serac fields without a region (tests, previews): at most one per GRID_CELL square, in GRID_CHANCE of them. */
     private static final int GRID_CELL = 1000;
     private static final double GRID_CHANCE = 0.8;
-    /** Half width of the open ground between two neighbouring plates (so gaps are 16-36 blocks wide). */
+    /**
+     * Between two neighbouring plates: in CONNECTED of the pairs a tear 1-2 blocks wide (half width
+     * TEAR_HALF_MIN-MAX), otherwise a wider gap of snow ground (half width GAP_MIN-MAX, so 16-36 blocks) broken
+     * with only gentle, broad rises and dips.
+     */
+    private static final double CONNECTED = 0.45, TEAR_HALF_MIN = 0.85, TEAR_HALF_MAX = 1.15;
     private static final double GAP_MIN = 8, GAP_MAX = 18;
+    /** Depth of the tears between connected plates below the ground (the floor never below LOWEST_FLOOR). */
+    private static final double TEAR_MIN = 26, TEAR_MAX = 36;
+    /** Gentle rises and dips in the ground between plates: up to RISE blocks, reaching STEP_REACH beyond the outlines. */
+    private static final double RISE = 5, STEP_REACH = 18;
     /** Deepest a plate's low end sinks below the ground, and the height its high end levels off towards. */
     private static final double SINK_MAX = 20, RISE_SOFT = 45;
     /** Deepest crack at the foot of a plate's high face, below the ground. */
-    private static final double SERAC_CRACK = 14;
+    private static final double SERAC_CRACK = 22;
     /** Plate tilt: 5 to 30 degrees. */
     private static final double TILT_MIN = 5, TILT_MAX = 30;
     /** Extra ice kept below the deepest nearby cut, so its walls are ice rather than rock. */
@@ -56,8 +65,20 @@ public final class EverwinterTerrain {
     private static final int DRIFT_CELL = 40, HILL_CELL = 230, SPIRE_CELL = 72;
     /** Wind direction (snow piles and tails stretch along it). */
     private static final double WIND_X = 0.8, WIND_Z = 0.6;
-    private static final Serac NO_SERAC = new Serac(0, 0, 0, -1, false);
+    private static final Serac NO_SERAC = new Serac(0, 0, 0, -1, false, false);
     private static final Group[] NO_GROUPS = new Group[0];
+    /**
+     * Everwinter on the border mountains (decisions 24-25): on its side of the border the biome's full relief
+     * runs right up to the mountain foot (no flat fading strip) and fades out up the mountain ramp, between
+     * REACH_START and REACH_MIN-MAX blocks into the border belt (the ramp starts about 68 blocks in), and below
+     * about Y=TOP_LOW-TOP_HIGH. Glacier tongues lie on top of it, growing towards the mountains.
+     */
+    public static final double REACH_START = 50, REACH_MIN = 130, REACH_MAX = 200;
+    private static final double TOP_LOW = 160, TOP_HIGH = 200;
+    /** How much further up the mountain the frost reaches than Everwinter's ground. */
+    public static final double FROST_EXTRA = 80;
+    /** Edge glaciers: up to this far (blocks) out from the border belt, thickness GLACIER_MIN-MAX. */
+    private static final double GLACIER_OUT = 220, GLACIER_MIN = 5, GLACIER_MAX = 14;
     private final long seed;
     /** Direction the crevasses run in (seeded). */
     private final double tearCos, tearSin;
@@ -89,6 +110,52 @@ public final class EverwinterTerrain {
         return smoothstep(borderWidth, borderWidth + EDGE_FADE, edgeDistance);
     }
 
+    /**
+     * Relief weight of Everwinter on its side of the border (decision 25): 1 in the region and at the mountain
+     * foot, fading out up the ramp in uneven tongues and with height. Multiplied with {@link #districtWeight}.
+     *
+     * @param depth   blocks behind the start of the border belt (border width minus edge distance; negative
+     *                inside the region)
+     * @param rockTop surface of the region terrain (plain ground or mountain rock)
+     */
+    public double borderReach(int x, int z, double depth, double rockTop) {
+        return reach(x, z, depth, rockTop, 0);
+    }
+
+    /**
+     * Frost on the mountain rock above Everwinter's ground (0-1): the same tongues as {@link #borderReach}
+     * reaching FROST_EXTRA blocks further up, so snow and ice patches climb on to meet the mountains' snowline.
+     */
+    public double borderFrost(int x, int z, double depth, double rockTop) {
+        return reach(x, z, depth, rockTop, FROST_EXTRA);
+    }
+
+    private double reach(int x, int z, double depth, double rockTop, double extra) {
+        if (depth <= REACH_START) return 1;
+        double reach = REACH_MIN + extra + (REACH_MAX - REACH_MIN) * (0.5 + 0.5 * noise(x / 150.0, z / 150.0, 250))
+                + 20 * noise(x / 40.0, z / 40.0, 251);
+        return (1 - smoothstep(REACH_START, reach, depth))
+                * (1 - smoothstep(TOP_LOW + extra / 2, TOP_HIGH + extra / 2, rockTop + 15 * noise(x / 60.0, z / 60.0, 252)));
+    }
+
+    /**
+     * Glacier lying on Everwinter's ground near the border: broad, lobed tongues of ice GLACIER_MIN-MAX blocks
+     * thick with sheer ice-cliff edges, covering about half of the ground at the mountain foot and thinning out
+     * GLACIER_OUT blocks into the region. Thickness in blocks (0: none).
+     */
+    public double edgeGlacier(int x, int z, double depth) {
+        double near = smoothstep(-GLACIER_OUT, 40, depth);
+        if (near <= 0) return 0;
+        double tongues = fbm(x, z, 160, 3, 253) + 0.12 * noise(x / 18.0, z / 18.0, 254), threshold = 0.5 - 0.5 * near;
+        return (GLACIER_MIN + (GLACIER_MAX - GLACIER_MIN) * (0.5 + 0.5 * noise(x / 70.0, z / 70.0, 255)))
+                * smoothstep(threshold, threshold + 0.02, tongues);
+    }
+
+    /** Where Everwinter's materials take over a border column from the border palette: above about half weight. */
+    public boolean ownsBorder(int x, int z, double weight) {
+        return weight > 0.45 + 0.2 * noise(x / 24.0, z / 24.0, 256);
+    }
+
     /** Column with serac fields on a jittered grid ({@link #gridGroups}), for tests and previews. */
     public Column column(int x, int z, double base, double weight) {
         return column(x, z, base, weight, weight > 0 ? gridGroups(x, z) : NO_GROUPS);
@@ -115,11 +182,12 @@ public final class EverwinterTerrain {
 
         double cliff = cliff(x, z, shelter);
         double[] hill = hill(x, z);
-        double spire = spire(x, z);
+        double spire = spire(x, z, groups);
         // Deepslate outcrops: rough knobs breaking through the snow, kept off the ice fields and big hills; where
         // sheltered, snow banks up around them.
         double rockiness = fbm(x, z, 85, 2, 30) + 0.25 * noise(x / 13.0, z / 13.0, 32);
         double open = 1 - serac.field();
+        // Serac fields stay clean: no hills on or between the plates (spires are kept away in spire()).
         for (int k = 0; k < 3; k++) hill[k] *= open;
         double rock = open * (1 - smoothstep(1, 6, hill[0])) * 9 * Math.clamp((rockiness - 0.42) / 0.3, 0, 1);
         double snow = open * (drift(x, z) + hill[2] + shelter * 3.5 * smoothstep(0.3, 0.44, rockiness));
@@ -131,7 +199,7 @@ public final class EverwinterTerrain {
                 : Math.max(LOWEST_FLOOR, ground + weight * (cliff + hillHeight + snow + serac.height() + Math.max(spire, rock)));
         // Deep ice under and around serac fields, so sunken plates and cracks have ice walls.
         if (serac.near()) {
-            iceBase = Math.min(iceBase, Math.max(LOWEST_FLOOR, ground - weight * Math.max(SERAC_CRACK, SINK_MAX)) - WALL_ICE);
+            iceBase = Math.min(iceBase, Math.max(LOWEST_FLOOR, ground - weight * TEAR_MAX) - WALL_ICE);
         }
 
         // Crevasses: long, deep tears in the ground with near-vertical ice walls.
@@ -282,10 +350,10 @@ public final class EverwinterTerrain {
 
     /**
      * Serac field column: plate surface relative to the ground (negative where the plate is sunk), crack depth
-     * below the ground (0: none), clean-ground share 0-1, the plate it belongs to (-1: none), and whether a
-     * serac field is close (deep ice below).
+     * below the ground (0: none), clean-ground share 0-1, the plate it belongs to (-1: none), whether a serac
+     * field is close (deep ice below), and whether this is stepped ground in a wider gap between plates.
      */
-    private record Serac(double height, double crack, double field, long plate, boolean near) {}
+    private record Serac(double height, double crack, double field, long plate, boolean near, boolean gap) {}
 
     /**
      * A serac field: a group of {@code count} plates, plate 0 in the middle, the rest in a ring around it.
@@ -325,7 +393,8 @@ public final class EverwinterTerrain {
                 if (unit(hash(cx, cz, 12)) > GRID_CHANCE) continue;
                 Group group = group(((long) cx << 32) ^ (cz & 0xFFFFFFFFL),
                         (cx + 0.35 + 0.3 * unit(hash(cx, cz, 13))) * GRID_CELL, (cz + 0.35 + 0.3 * unit(hash(cx, cz, 14))) * GRID_CELL);
-                if (Math.hypot(x - group.x(), z - group.z()) < group.reach() + 30) groups.add(group);
+                // Generous margin: spires near the field look the field up too (see nearField).
+                if (Math.hypot(x - group.x(), z - group.z()) < group.reach() + 100) groups.add(group);
             }
         }
         return groups.toArray(NO_GROUPS);
@@ -333,12 +402,12 @@ public final class EverwinterTerrain {
 
     /**
      * Serac fields: groups of 4-7 huge pieces of the glacier ground itself, broken off and tilted, lying next to
-     * each other with 16-36 blocks of unbroken snow ground between neighbours. Plates have irregular, wobbly
-     * outlines about 115-235 blocks across (cut back where they meet a neighbour) and keep the ground's own
-     * rolls on top. Each is tilted 5-30 degrees in its own direction about its middle: its low end sinks below
-     * the surrounding ground (which breaks off in a wall down to it, at most SINK_MAX deep), its high end
-     * rises to a sheer ice face with a narrow crack at its foot. Very long, steep plates level off towards
-     * RISE_SOFT.
+     * each other. Plates have irregular, wobbly outlines about 115-235 blocks across (cut back where they meet a
+     * neighbour) and keep the ground's own rolls on top. Each is tilted 5-30 degrees in its own direction about
+     * its middle: its low end sinks below the surrounding ground (which breaks off in a wall down to it, at most
+     * SINK_MAX deep), its high end rises to a sheer ice face with a deep crack 1-2 blocks wide at its foot. Very
+     * long, steep plates level off towards RISE_SOFT. Neighbouring plates either touch, split by a deep tear
+     * 1-2 blocks wide, or stand 16-36 blocks apart over plain snow ground with gentle rises and dips.
      */
     private Serac serac(int x, int z, Group[] groups) {
         Group group = null;
@@ -346,9 +415,8 @@ public final class EverwinterTerrain {
             if (Math.hypot(x - candidate.x(), z - candidate.z()) < candidate.reach() + 30) group = candidate;
         }
         if (group == null) return NO_SERAC;
-        // Wobbly plate outlines: the lookups are warped broadly and jittered slightly.
-        double px = x + 9 * noise(x / 45.0, z / 45.0, 120) + 2 * noise(x / 8.0, z / 8.0, 122);
-        double pz = z + 9 * noise(x / 45.0, z / 45.0, 121) + 2 * noise(x / 8.0, z / 8.0, 123);
+        // Broadly warped lookups (bent plate boundaries); the warp is gentle enough that a 2-block tear stays open.
+        double px = x + 9 * noise(x / 45.0, z / 45.0, 120), pz = z + 9 * noise(x / 45.0, z / 45.0, 121);
         // Nearest plate centre and the boundary to the next one (Voronoi within the group).
         int best = 0, second = -1;
         double bestDistance = Double.POSITIVE_INFINITY, secondDistance = Double.POSITIVE_INFINITY;
@@ -366,16 +434,30 @@ public final class EverwinterTerrain {
         }
         int a = (int) group.key() + best, b = (int) (group.key() >>> 32);
         double dx = px - group.siteX()[best], dz = pz - group.siteZ()[best], radius = group.radius()[best];
-        double edge = Double.POSITIVE_INFINITY, gap = 0;
+        // Wobbly, ragged outlines: blocks inside each plate's own radius.
+        double wobble = 1 + 0.18 * noise(px / 35.0, pz / 35.0, 124) + 0.06 * noise(px / 9.0, pz / 9.0, 125);
+        double ragged = 1.5 * noise(x / 5.0, z / 5.0, 126);
+        double outline = radius * wobble - Math.sqrt(bestDistance) + ragged;
+        double outlineSecond = Double.NEGATIVE_INFINITY, edge = Double.POSITIVE_INFINITY, gap = 0;
+        boolean connected = false;
+        int pairA = 0, pairB = 0;
         if (second >= 0) {
+            outlineSecond = group.radius()[second] * wobble - Math.sqrt(secondDistance) + ragged;
             double separation = Math.hypot(group.siteX()[second] - group.siteX()[best], group.siteZ()[second] - group.siteZ()[best]);
             edge = (secondDistance - bestDistance) / (2 * separation);
-            gap = GAP_MIN + (GAP_MAX - GAP_MIN)
-                    * unit(hash(Math.min(best, second), Math.max(best, second), 201 + (int) group.key() * 31));
+            pairA = (int) group.key() * 31 + Math.min(best, second);
+            pairB = b * 31 + Math.max(best, second);
+            double u = unit(hash(pairA, pairB, 201));
+            connected = unit(hash(pairA, pairB, 202)) < CONNECTED;
+            if (connected) {
+                gap = TEAR_HALF_MIN + (TEAR_HALF_MAX - TEAR_HALF_MIN) * u;
+            } else {
+                gap = GAP_MIN + (GAP_MAX - GAP_MIN) * u;
+                edge += 2.5 * noise(x / 6.0, z / 6.0, 127);
+            }
         }
-        // Blocks inside the plate's outline: its wobbly radius, and the open gap kept to the neighbouring plate.
-        double inside = Math.min(edge - gap,
-                radius * (1 + 0.18 * noise(px / 35.0, pz / 35.0, 124) + 0.06 * noise(px / 9.0, pz / 9.0, 125)) - Math.hypot(dx, dz));
+        // Blocks inside the plate: within its outline and clear of the gap to the neighbouring plate.
+        double inside = Math.min(edge - gap, outline);
         double tilt = Math.tan(Math.toRadians(TILT_MIN + (TILT_MAX - TILT_MIN) * unit(hash(a, b, 211))));
         double angle = 2 * Math.PI * unit(hash(a, b, 212)), u4 = unit(hash(a, b, 213));
         // Position along the tilt: -radius at the low end, +radius at the high face.
@@ -385,15 +467,32 @@ public final class EverwinterTerrain {
         if (offset > 0) offset = RISE_SOFT * Math.tanh(offset / RISE_SOFT);
         // Clean snow ground (no piles, hills or outcrops) on and within about 40 blocks of a plate.
         double field = smoothstep(-40, -10, inside);
-        if (inside < 0) {
-            // Narrow crack along the foot of a tall high face.
-            double width = 1 + 2 * u4;
-            if (inside > -width && along > 0.3 * radius && offset > 8) {
-                return new Serac(0, 6 + (SERAC_CRACK - 6) * unit(hash(a, b, 214)), field, -1, true);
-            }
-            return new Serac(0, 0, field, -1, true);
+        if (inside >= 0) {
+            return new Serac(offset + 0.8 * noise(x / 8.0, z / 8.0, 133), 0, field, group.key() * 8 + best, true, false);
         }
-        return new Serac(offset + 0.8 * noise(x / 8.0, z / 8.0, 133), 0, field, group.key() * 8 + best, true);
+        double between = Math.min(outline, outlineSecond);
+        if (second >= 0 && connected && edge < gap && between > 0) {
+            // Deep tear between two touching plates.
+            return new Serac(0, TEAR_MIN + (TEAR_MAX - TEAR_MIN) * unit(hash(pairA, pairB, 203)), 1, -1, true, false);
+        }
+        // Deep crack 1-2 blocks wide along the foot of a tall high face.
+        if (inside > -(1 + u4) && along > 0.3 * radius && offset > 8) {
+            return new Serac(0, 10 + (SERAC_CRACK - 10) * unit(hash(a, b, 214)), field, -1, true, false);
+        }
+        if (second >= 0 && between > -STEP_REACH && (!connected || edge >= gap)) {
+            // Plates further apart (or not reaching each other): plain snow ground with gentle rises and dips.
+            return new Serac(steps(x, z, between), 0, 1, -1, true, true);
+        }
+        return new Serac(0, 0, field, -1, true, false);
+    }
+
+    /**
+     * Ground between two plates further apart: the plain snow ground plus gentle, broad rises and dips (up to
+     * RISE blocks over about 50 blocks, never steeper than about one block in four), fading out towards
+     * STEP_REACH beyond the plates. No steps, spikes or rubble (the user rejected both, decisions 21-22).
+     */
+    private double steps(int x, int z, double between) {
+        return RISE * noise(x / 50.0, z / 50.0, 240) * smoothstep(-STEP_REACH, -STEP_REACH + 6, between);
     }
 
     /** Serac plate at a column (-1: none) with grid serac fields, for tests. */
@@ -401,8 +500,17 @@ public final class EverwinterTerrain {
         return serac(x, z, gridGroups(x, z)).plate();
     }
 
-    /** Ice spires: rare sharp, slightly leaning shards on a jittered grid. */
-    private double spire(int x, int z) {
+    /** Whether a column is stepped ground in a wider gap between plates (grid serac fields), for tests. */
+    boolean stepGap(int x, int z) {
+        return serac(x, z, gridGroups(x, z)).gap();
+    }
+
+    /**
+     * Ice spires: rare, thick, tapering shards 14-42 blocks tall with a 4-9 block base radius on a jittered grid.
+     * Each leans slightly, and about 40% curve: their axis drifts further sideways the higher it gets. As a
+     * heightmap, a column reaches the highest slice of the spire that still covers it.
+     */
+    private double spire(int x, int z, Group[] groups) {
         int cellX = Math.floorDiv(x, SPIRE_CELL), cellZ = Math.floorDiv(z, SPIRE_CELL);
         double best = 0;
         for (int cz = cellZ - 1; cz <= cellZ + 1; cz++) {
@@ -410,14 +518,35 @@ public final class EverwinterTerrain {
                 if (unit(hash(cx, cz, 40)) > 0.14) continue;
                 double px = (cx + 0.2 + 0.6 * unit(hash(cx, cz, 41))) * SPIRE_CELL;
                 double pz = (cz + 0.2 + 0.6 * unit(hash(cx, cz, 42))) * SPIRE_CELL;
-                double radius = 3 + 4 * unit(hash(cx, cz, 43)), height = 8 + 20 * unit(hash(cx, cz, 44));
-                double dx = x - px - 0.25 * (height - 8) * (unit(hash(cx, cz, 45)) - 0.5);
-                double dz = z - pz - 0.25 * (height - 8) * (unit(hash(cx, cz, 46)) - 0.5);
-                double d = Math.sqrt(dx * dx + dz * dz) / (radius * (1 + 0.25 * noise(x / 3.0, z / 3.0, 47)));
-                if (d < 1) best = Math.max(best, height * Math.pow(1 - d, 1.4));
+                double radius = 4 + 5 * unit(hash(cx, cz, 43)), height = 14 + 28 * unit(hash(cx, cz, 44));
+                double direction = 2 * Math.PI * unit(hash(cx, cz, 45));
+                double lean = 0.08 * unit(hash(cx, cz, 46));
+                double curve = unit(hash(cx, cz, 48)) < 0.4 ? 0.06 + 0.08 * unit(hash(cx, cz, 49)) : 0;
+                double reach = radius + (lean + curve) * height + 2;
+                double dx = x - px, dz = z - pz;
+                if (dx * dx + dz * dz > reach * reach || nearField(px, pz, reach, groups)) continue;
+                double rough = 1 + 0.2 * noise(x / 3.0, z / 3.0, 47);
+                // Highest slice covering this column; slices shrink upwards while their centre drifts sideways.
+                for (double h = height; h > best; h -= 0.5) {
+                    double t = h / height, shift = lean * h + curve * h * t;
+                    double r = radius * rough * Math.pow(1 - t, 1.1);
+                    double sx = dx - shift * Math.cos(direction), sz = dz - shift * Math.sin(direction);
+                    if (sx * sx + sz * sz <= r * r) {
+                        best = h;
+                        break;
+                    }
+                }
             }
         }
         return best;
+    }
+
+    /** Whether a spire at (x, z) would stand on or within 40 blocks of a serac field. */
+    private static boolean nearField(double x, double z, double reach, Group[] groups) {
+        for (Group group : groups) {
+            if (Math.hypot(x - group.x(), z - group.z()) < group.reach() + reach + 40) return true;
+        }
+        return false;
     }
 
     /** Change of a field per block (forward differences), for distances to its zero contour. */

@@ -39,34 +39,109 @@ public final class EverwinterPreview {
                 "Everwinter serac field looking north, true vertical scale");
         writeTopDown(closeUp, 1, output.resolveSibling("everwinter-seracs.png"),
                 "Everwinter serac field from above: 760 x 600 blocks, 1 px per block");
+        writeFringe(output);
+    }
+
+    /**
+     * Everwinter growing onto the border mountains (decision 24), with the real region layout: the stretch of
+     * border in front of an Everwinter district, looking from the region towards the mountains.
+     */
+    private static void writeFringe(Path output) throws Exception {
+        RegionLayout layout = new RegionLayout(12345L, 3800, 360);
+        BiomeDistricts districts = new BiomeDistricts(31L, 3800);
+        EverwinterTerrain terrain = new EverwinterTerrain(777L);
+        EverwinterColumns columns = new EverwinterColumns(layout, districts, terrain,
+                new EverwinterGroups(layout, districts, terrain, 360, 777L), 360);
+        EverwinterPalette palette = new EverwinterPalette(99L);
+        // A strongly covered spot at the start of the mountain ramp, with the mountains to the north (-z).
+        int spotX = 0, spotZ = 0;
+        search:
+        for (int z = -12000; z < 12000; z += 32) {
+            for (int x = -12000; x < 12000; x += 32) {
+                EverwinterColumns.Column column = columns.column(x, z);
+                if (!column.border() || !column.member() || column.rockTop() > 100) continue;
+                // Mountains to the north, Everwinter to the south.
+                if (!columns.column(x, z + 150).member() || columns.column(x, z - 150).rockTop() < 140) continue;
+                spotX = x;
+                spotZ = z;
+                break search;
+            }
+        }
+        int sizeX = 500, sizeZ = 420, originX = spotX - sizeX / 2, originZ = spotZ - 260;
+        EverwinterColumns.Column[][] grid = new EverwinterColumns.Column[sizeZ][sizeX];
+        float[][] heights = new float[sizeZ][sizeX];
+        for (int z = 0; z < sizeZ; z++) {
+            for (int x = 0; x < sizeX; x++) {
+                grid[z][x] = columns.column(originX + x, originZ + z);
+                heights[z][x] = grid[z][x].terrain().height();
+            }
+        }
+        Area area = new Area(originX, originZ, sizeX, sizeZ, heights, (x, z, y, top, gentle) -> {
+            EverwinterColumns.Column column = grid[z][x];
+            int bx = originX + x, bz = originZ + z;
+            if (column.border() && !(column.member() && y >= column.terrain().iceBase())) {
+                int floor = top;
+                for (int k = 0; k < 4; k++) {
+                    int nx = Math.clamp(x + (k == 0 ? 1 : k == 1 ? -1 : 0), 0, sizeX - 1);
+                    int nz = Math.clamp(z + (k == 2 ? 1 : k == 3 ? -1 : 0), 0, sizeZ - 1);
+                    floor = Math.min(floor, (int) Math.ceil(grid[nz][nx].terrain().height()));
+                }
+                return borderColor(BorderPalette.selectFringe(12345L, bx, y, bz, top, floor, gentle, column.fringe()));
+            }
+            if (!column.member()) return new Color(126, 126, 126);
+            return color(palette.select(bx, y, bz, top, column.terrain().iceBase(), column.terrain().feature(), gentle));
+        });
+        writeOblique(area, 2, 1, 2, output.resolveSibling("everwinter-fringe.png"),
+                "Everwinter growing onto the border mountains (real layout), looking north, true vertical scale");
+        writeTopDown(area, 1, output.resolveSibling("everwinter-fringe-map.png"),
+                "Everwinter border fringe from above: " + sizeX + " x " + sizeZ + " blocks, mountains to the north");
+    }
+
+    private static Color borderColor(BorderPalette.Material material) {
+        return switch (material) {
+            case SNOW -> new Color(238, 243, 250);
+            case PACKED_ICE -> new Color(150, 184, 232);
+            case BLUE_ICE -> new Color(88, 140, 222);
+            case DEEPSLATE -> new Color(72, 72, 80);
+            case TUFF -> new Color(96, 98, 90);
+        };
+    }
+
+    /** Colour of a block in an area (local coordinates), given the column's top block and whether it is gentle. */
+    private interface Painter {
+        Color at(int x, int z, int y, int top, boolean gentle);
     }
 
     /** Block-quantized surface of an area: top block and colours. */
     private static final class Area {
         final int originX, originZ, sizeX, sizeZ;
         final float[][] surfaces;
-        final int[][] tops, features;
+        final int[][] tops;
         final Color[][] colors;
-        final EverwinterTerrain.Column[][] columns;
-        final EverwinterPalette palette;
+        final Painter painter;
 
+        /** Everwinter at full strength with grid serac fields. */
         Area(EverwinterTerrain terrain, EverwinterPalette palette, int originX, int originZ, int sizeX, int sizeZ) {
+            this(originX, originZ, sizeX, sizeZ, terrain, palette, new EverwinterTerrain.Column[sizeZ][sizeX]);
+        }
+
+        private Area(int originX, int originZ, int sizeX, int sizeZ, EverwinterTerrain terrain, EverwinterPalette palette,
+                     EverwinterTerrain.Column[][] columns) {
+            this(originX, originZ, sizeX, sizeZ, heights(terrain, originX, originZ, columns), (x, z, y, top, gentle) ->
+                    color(palette.select(originX + x, y, originZ + z, top, columns[z][x].iceBase(), columns[z][x].feature(), gentle)));
+        }
+
+        Area(int originX, int originZ, int sizeX, int sizeZ, float[][] heights, Painter painter) {
             this.originX = originX;
             this.originZ = originZ;
             this.sizeX = sizeX;
             this.sizeZ = sizeZ;
-            this.palette = palette;
+            this.painter = painter;
             surfaces = new float[sizeZ][sizeX];
             tops = new int[sizeZ][sizeX];
-            features = new int[sizeZ][sizeX];
             colors = new Color[sizeZ][sizeX];
-            columns = new EverwinterTerrain.Column[sizeZ][sizeX];
             for (int z = 0; z < sizeZ; z++) {
-                for (int x = 0; x < sizeX; x++) {
-                    columns[z][x] = terrain.column(originX + x, originZ + z, 80, 1);
-                    tops[z][x] = (int) Math.ceil(columns[z][x].height()) - 1;
-                    features[z][x] = columns[z][x].feature();
-                }
+                for (int x = 0; x < sizeX; x++) tops[z][x] = (int) Math.ceil(heights[z][x]) - 1;
             }
             for (int z = 0; z < sizeZ; z++) {
                 for (int x = 0; x < sizeX; x++) {
@@ -74,15 +149,25 @@ public final class EverwinterPreview {
                     int gx = tops[z][Math.min(sizeX - 1, x + 1)] - tops[z][Math.max(0, x - 1)];
                     int gz = tops[Math.min(sizeZ - 1, z + 1)][x] - tops[Math.max(0, z - 1)][x];
                     boolean gentle = Math.abs(gx) < 3 && Math.abs(gz) < 3;
-                    colors[z][x] = color(palette.select(originX + x, tops[z][x], originZ + z, tops[z][x],
-                            columns[z][x].iceBase(), features[z][x], gentle));
+                    colors[z][x] = painter.at(x, z, tops[z][x], tops[z][x], gentle);
                     surfaces[z][x] = tops[z][x] + 1;
                 }
             }
         }
 
+        private static float[][] heights(EverwinterTerrain terrain, int originX, int originZ, EverwinterTerrain.Column[][] columns) {
+            float[][] heights = new float[columns.length][columns[0].length];
+            for (int z = 0; z < columns.length; z++) {
+                for (int x = 0; x < columns[0].length; x++) {
+                    columns[z][x] = terrain.column(originX + x, originZ + z, 80, 1);
+                    heights[z][x] = columns[z][x].height();
+                }
+            }
+            return heights;
+        }
+
         Color side(int x, int z, int y) {
-            return color(palette.select(originX + x, y, originZ + z, tops[z][x], columns[z][x].iceBase(), features[z][x], false));
+            return painter.at(x, z, y, tops[z][x], false);
         }
     }
 

@@ -1,6 +1,5 @@
 package c.cronus.fantasyterrain.worldgen;
 
-import c.cronus.fantasyterrain.FrozenLand;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -16,7 +15,7 @@ import net.minecraft.world.level.levelgen.densityfunction.*;
  * ({@link BiomeDistricts#code}) the biome source picks pool entries from, so terrain and biomes always agree.
  */
 public record BiomeTerrainFunction(int regionSize, int borderWidth, Output output) implements DensityFunction {
-    public enum Output { DENSITY, HEIGHT, EVERWINTER, FEATURE, ICE_BASE, DISTRICT }
+    public enum Output { DENSITY, HEIGHT, EVERWINTER, FEATURE, ICE_BASE, DISTRICT, FRINGE }
     /**
      * Recent columns per worldgen thread, shared by all outputs: each output compiles its own sampler, but they
      * all need the same (fairly expensive) Everwinter column.
@@ -31,7 +30,7 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
                         try {
                             return DataResult.success(Output.valueOf(s.toUpperCase(java.util.Locale.ROOT)));
                         } catch (IllegalArgumentException exception) {
-                            return DataResult.error(() -> "Unknown biome terrain output '" + s + "'; expected density, height, everwinter, feature, ice_base, or district");
+                            return DataResult.error(() -> "Unknown biome terrain output '" + s + "'; expected density, height, everwinter, feature, ice_base, district, or fringe");
                         }
                     },
                     o -> o.name().toLowerCase(java.util.Locale.ROOT)).fieldOf("output").forGetter(BiomeTerrainFunction::output)
@@ -51,35 +50,23 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
         // Serac field placement is searched once per region, so it is shared by all samplers of a setup.
         EverwinterGroups groups = GROUPS.computeIfAbsent(setup,
                 key -> new EverwinterGroups(layout, districts, everwinter, borderWidth, everwinterSeed));
+        EverwinterColumns columns = new EverwinterColumns(layout, districts, everwinter, groups, borderWidth);
         return new DensitySampler() {
-            private Column column(int x, int z) {
-                return CACHE.get().get(setup, x, z, this::compute);
-            }
-
-            private Column compute(int x, int z) {
-                RegionLayout.Sample sample = layout.sample(x, z);
-                float base = layout.surfaceHeight(x, z, sample);
-                // Same tests as RegionBiomeSource: region from the layout, no border biome, pool slot from the district.
-                if (sample.region() != FrozenLand.REGION_INDEX || sample.border() > RegionLayout.BORDER_THRESHOLD) {
-                    return new Column(new EverwinterTerrain.Column(base, base, EverwinterTerrain.PLAIN), false);
-                }
-                BiomeDistricts.District district = districts.district(sample, FrozenLand.POOL_SIZE);
-                boolean member = district.slot() == FrozenLand.EVERWINTER_SLOT;
-                double weight = member ? EverwinterTerrain.districtWeight(district.edge())
-                        * EverwinterTerrain.edgeFade(sample.edgeDistance(), borderWidth) : 0;
-                return new Column(everwinter.column(x, z, base, weight, groups.groups(sample)), member);
+            private EverwinterColumns.Column column(int x, int z) {
+                return CACHE.get().get(setup, x, z, columns::column);
             }
 
             @Override
             public float sampleValue(SamplerContext context, int x, int y, int z) {
                 if (output == Output.DISTRICT) return districts.code(layout.sample(x, z));
-                Column column = column(x, z);
+                EverwinterColumns.Column column = column(x, z);
                 return switch (output) {
                     case DENSITY -> density(column.terrain().height(), y);
                     case HEIGHT -> column.terrain().height();
                     case EVERWINTER -> column.member() ? 1 : 0;
                     case FEATURE -> column.terrain().feature();
                     case ICE_BASE -> column.terrain().iceBase();
+                    case FRINGE -> column.fringe();
                     case DISTRICT -> throw new IllegalStateException();
                 };
             }
@@ -103,20 +90,18 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
         };
     }
 
-    private record Column(EverwinterTerrain.Column terrain, boolean member) {}
-
-    private interface ColumnSource { Column column(int x, int z); }
+    private interface ColumnSource { EverwinterColumns.Column column(int x, int z); }
 
     /** Direct-mapped cache of the last few thousand columns (a 64 x 64 block window). */
     private static final class ColumnCache {
         private static final int SIZE = 4096;
         private final long[] setups = new long[SIZE], positions = new long[SIZE];
-        private final Column[] columns = new Column[SIZE];
+        private final EverwinterColumns.Column[] columns = new EverwinterColumns.Column[SIZE];
 
-        Column get(long setup, int x, int z, ColumnSource compute) {
+        EverwinterColumns.Column get(long setup, int x, int z, ColumnSource compute) {
             long position = (long) x << 32 | (z & 0xFFFFFFFFL);
             int slot = (x & 63) | (z & 63) << 6;
-            Column column = columns[slot];
+            EverwinterColumns.Column column = columns[slot];
             if (column == null || setups[slot] != setup || positions[slot] != position) {
                 column = compute.column(x, z);
                 columns[slot] = column;
@@ -138,7 +123,7 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
     @Override public Interval range() {
         return switch (output) {
             case HEIGHT, ICE_BASE -> Interval.of(8, 310);
-            case EVERWINTER -> Interval.of(0, 1);
+            case EVERWINTER, FRINGE -> Interval.of(0, 1);
             case FEATURE -> Interval.of(0, EverwinterTerrain.FEATURES - 1);
             case DENSITY -> Interval.of(-16, 16);
             case DISTRICT -> Interval.of(0, BiomeDistricts.CODES - 1);

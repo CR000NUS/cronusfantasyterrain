@@ -16,6 +16,7 @@ public final class EverwinterTest {
     public static void main(String[] args) throws Exception {
         checkWiring();
         checkFields();
+        checkFringe();
         // The relief fades to zero at the district boundary and is full further inside.
         require(EverwinterTerrain.districtWeight(0) == 0, "Relief must vanish at the biome edge");
         require(EverwinterTerrain.districtWeight(EverwinterTerrain.DISTRICT_FADE) == 1, "Relief must be full inside the biome");
@@ -42,7 +43,7 @@ public final class EverwinterTest {
 
         // Full-strength statistics over a large area.
         int samples = 0, walls = 0, steps = 0, crevasses = 0, deep = 0, wallChecks = 0, rockWalls = 0;
-        int pieces = 0, gentleTilt = 0, steepTilt = 0, plateaus = 0, crowded = 0;
+        int pieces = 0, gentleTilt = 0, steepTilt = 0, plateaus = 0, crowded = 0, stepGround = 0, steep = 0, tears = 0, tallSpires = 0;
         int[] features = new int[EverwinterTerrain.FEATURES];
         int[] heights = new int[400];
         double lowest = 999, highest = -999;
@@ -58,20 +59,25 @@ public final class EverwinterTest {
                 double drop = column.height() - next.height();
                 if (column.feature() == EverwinterTerrain.GLACIER && drop > 6) walls++;
                 if (open(column) && open(next) && Math.abs(drop) > 5) steps++;
-                if (column.feature() == EverwinterTerrain.GLACIER) {
-                    // Serac plates: tilted 5-30 degrees (slope 0.09-0.58 per block plus a little roughness), each
-                    // standing alone with open ground between it and the next plate.
+                long plate = column.feature() == EverwinterTerrain.GLACIER ? terrain.plate(x, z) : -1;
+                if (terrain.stepGap(x, z)) {
+                    // Wider gaps between plates: plain snow ground, only gentle rises and dips (no steps or spikes).
+                    stepGround++;
+                    require(column.feature() != EverwinterTerrain.GLACIER, "Gaps between plates must be ground, not ice: " + x + ", " + z);
+                    if (terrain.stepGap(x + 3, z) && Math.abs(column.height() - terrain.column(x + 3, z, 80, 1).height()) > 3
+                            || terrain.stepGap(x, z + 3) && Math.abs(column.height() - terrain.column(x, z + 3, 80, 1).height()) > 3) steep++;
+                }
+                if (column.feature() == EverwinterTerrain.SPIRE
+                        && column.height() - Math.min(terrain.column(x - 12, z, 80, 1).height(), terrain.column(x + 12, z, 80, 1).height()) > 24) {
+                    tallSpires++;
+                }
+                if (plate != -1) {
+                    // Serac plates: tilted 5-30 degrees (slope 0.09-0.58 per block plus a little roughness); two
+                    // plates never touch directly (at least a 1-block tear or open ground between them).
                     pieces++;
-                    long plate = terrain.plate(x, z);
-                    search:
-                    for (int k = 0; k < 8; k++) {
-                        for (int r = 1; r <= 6; r++) {
-                            long other = terrain.plate(x + r * DX[k], z + r * DZ[k]);
-                            if (other != -1 && other != plate) {
-                                crowded++;
-                                break search;
-                            }
-                        }
+                    for (int k = 0; k < 8; k += 2) {
+                        long other = terrain.plate(x + DX[k], z + DZ[k]);
+                        if (other != -1 && other != plate) crowded++;
                     }
                     EverwinterTerrain.Column west = terrain.column(x - 1, z, 80, 1), south = terrain.column(x, z + 1, 80, 1);
                     EverwinterTerrain.Column north = terrain.column(x, z - 1, 80, 1);
@@ -86,6 +92,9 @@ public final class EverwinterTest {
                 if (column.feature() == EverwinterTerrain.CREVASSE) {
                     // Depth below the surrounding surface; walls must be ice down to the floor, not rock.
                     crevasses++;
+                    long left = terrain.plate(x - 2, z), right = terrain.plate(x + 2, z);
+                    long up = terrain.plate(x, z - 2), down = terrain.plate(x, z + 2);
+                    if (left != -1 && right != -1 && left != right || up != -1 && down != -1 && up != down) tears++;
                     double rim = 0;
                     for (int k = -10; k <= 10; k += 2) {
                         for (EverwinterTerrain.Column side : new EverwinterTerrain.Column[] {
@@ -108,7 +117,7 @@ public final class EverwinterTest {
         require(lowest >= EverwinterTerrain.LOWEST_FLOOR, "Everwinter dips to sea level: " + lowest);
         require(highest <= 200, "Everwinter rises too high: " + highest);
         require(p95 - p5 >= 25, "Everwinter needs more elevation change: Y=" + p5 + "-" + p95 + " (5th-95th percentile)");
-        require(seracs > 0.03 && seracs < 0.25, "Serac plates must be common but not dominant: " + seracs);
+        require(seracs > 0.03 && seracs < 0.3, "Serac plates must be common but not dominant: " + seracs);
         require(piles > 0.02 && hills > 0.015 && hills < 0.15, "Snow piles must be common, big hills rarer");
         require(rocks > 0.01 && rocks < 0.08, "Deepslate outcrops must be occasional");
         require(spires > 0 && spires < 0.02, "Ice spires must exist but stay rare");
@@ -119,7 +128,11 @@ public final class EverwinterTest {
         require(deep > crevasses * 0.7, "Crevasses must be deep: " + deep + " of " + crevasses);
         require(rockWalls < wallChecks * 0.01, "Crevasse walls must be ice: " + rockWalls + " of " + wallChecks + " show rock");
         require(plateaus > pieces * 0.4, "Serac plates must be broad, not thin pillars: " + plateaus + " of " + pieces);
-        require(crowded == 0, "Serac plates must stand apart (at least 6 blocks of ground): " + crowded + " crowded");
+        require(crowded == 0, "Serac plates must never touch directly: " + crowded + " touching");
+        require(tears > 20, "Touching serac plates need deep tears 1-2 blocks wide between them: " + tears);
+        require(stepGround > pieces * 0.02 && steep < stepGround * 0.03,
+                "Ground between plates must be plain with gentle elevation changes: " + steep + " steep of " + stepGround);
+        require(tallSpires > 0, "Some ice spires must be tall");
         require(gentleTilt > plateaus * 0.15 && steepTilt > plateaus * 0.15,
                 "Serac plates need both slight and steep tilts: " + gentleTilt + " slight, " + steepTilt + " steep of " + plateaus);
 
@@ -211,6 +224,64 @@ public final class EverwinterTest {
         System.out.printf("Serac field checks passed: %d fields in %d Everwinter districts.%n", fields, districts);
     }
 
+    /**
+     * Everwinter on the border mountains (decisions 24-25): only on Everwinter's side of the border, its relief
+     * runs up to the mountain foot (no flat strip) and fades out up the ramp, never below the mountain rock, and
+     * the border palette is unchanged wherever Everwinter does not reach.
+     */
+    private static void checkFringe() {
+        int owned = 0, borderColumns = 0, strip = 0;
+        double stripRelief = 0;
+        for (long seed = 1; seed <= 2; seed++) {
+            RegionLayout layout = new RegionLayout(seed * 977, 3800, 360);
+            BiomeDistricts districts = new BiomeDistricts(seed * 31, 3800);
+            EverwinterTerrain terrain = new EverwinterTerrain(seed);
+            EverwinterColumns columns = new EverwinterColumns(layout, districts, terrain,
+                    new EverwinterGroups(layout, districts, terrain, 360, seed), 360);
+            Random random = new Random(seed);
+            for (int i = 0; i < 400000; i++) {
+                int x = random.nextInt(24000) - 12000, z = random.nextInt(24000) - 12000;
+                RegionLayout.Sample sample = layout.sample(x, z);
+                double depth = 360 - sample.edgeDistance();
+                if (depth < -80 || depth > 380) continue;
+                EverwinterColumns.Column column = columns.column(x, z);
+                float rock = layout.surfaceHeight(x, z, sample);
+                require(column.rockTop() == rock, "The region and border rock must stay unchanged");
+                boolean everwinterSide = sample.region() == FrozenLand.REGION_INDEX
+                        && districts.district(sample, FrozenLand.POOL_SIZE).slot() == FrozenLand.EVERWINTER_SLOT;
+                boolean border = sample.border() > RegionLayout.BORDER_THRESHOLD;
+                if (border) borderColumns++;
+                if (!everwinterSide || depth > EverwinterTerrain.REACH_MAX + 25) {
+                    require(column.terrain().height() == rock && !(border && column.member()),
+                            "Everwinter's ground must stay on its own side, near the mountain foot");
+                    require(column.fringe() == 0 || everwinterSide && depth < EverwinterTerrain.REACH_MAX + EverwinterTerrain.FROST_EXTRA + 25,
+                            "Everwinter's frost must stay on its own side of the border");
+                    continue;
+                }
+                if (border && column.member()) owned++;
+                if (depth < 40 && !border) {
+                    // The strip at the mountain foot carries Everwinter's relief, not a flat plain.
+                    strip++;
+                    stripRelief += Math.abs(column.terrain().height() - rock);
+                }
+            }
+        }
+        require(owned > 200, "Everwinter must take over part of the mountain foot: " + owned);
+        require(strip > 200 && stripRelief / strip > 6, "The mountain foot must keep Everwinter's hills, not a flat strip: "
+                + stripRelief / Math.max(1, strip));
+        // Without fringe, the border palette is exactly the old one.
+        Random random = new Random(7);
+        for (int i = 0; i < 20000; i++) {
+            int x = random.nextInt(4000), y = 60 + random.nextInt(250), z = random.nextInt(4000);
+            int top = y + random.nextInt(20), floor = top - random.nextInt(12);
+            boolean gentle = random.nextBoolean();
+            require(BorderPalette.selectFringe(12345L, x, y, z, top, floor, gentle, 0) == BorderPalette.select(12345L, x, y, z, top, floor, gentle),
+                    "The border palette must not change where Everwinter does not grow");
+        }
+        System.out.printf("Border checks passed: Everwinter takes over %d of %d sampled border columns; mountain foot relief"
+                + " %.1f blocks on average.%n", owned, borderColumns, stripRelief / Math.max(1, strip));
+    }
+
     private static void checkWiring() throws Exception {
         String preset = Files.readString(WORLDGEN.resolve("world_preset/regions.json"));
         Matcher pool = Pattern.compile("\"frozen_wastes\"\\s*:\\s*\\[([^]]*)]").matcher(preset);
@@ -219,6 +290,11 @@ public final class EverwinterTest {
         require(entries.length == FrozenLand.POOL_SIZE, "FrozenLand.POOL_SIZE does not match the preset");
         require(entries[FrozenLand.EVERWINTER_SLOT].equals("cronusfantasyterrain:everwinter"),
                 "FrozenLand.EVERWINTER_SLOT does not point at Everwinter in the preset");
+        // No natural water: no water springs, and the drain feature runs before freeze_top_layer.
+        String biome = Files.readString(WORLDGEN.resolve("biome/everwinter.json"));
+        require(!biome.contains("minecraft:spring_water") && !biome.contains("lake_water"), "Everwinter must not spawn water");
+        require(biome.matches("(?s).*\"cronusfantasyterrain:everwinter/dry\"\\s*,\\s*\"minecraft:freeze_top_layer\".*"),
+                "Everwinter must drain its water (everwinter/dry) in the last feature step");
         try (var files = Files.list(WORLDGEN.resolve("density_function"))) {
             for (Path file : files.toList()) {
                 String json = Files.readString(file);
