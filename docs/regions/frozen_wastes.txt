@@ -17,7 +17,7 @@ Biome pool (five biomes; each forms exactly one district per region)
 - minecraft:frozen_river (placeholder)
 
 Implemented custom biomes
-- Everwinter (2026-10-16, made rougher the same day): rolling snow ground with frequent snow piles and rarer big snow/ice hills, a few ice cliffs and deep crevasses, fields of jumbled serac blocks split by cracks, rare ice spires, occasional deepslate outcrops; glacier ice under the snow, stone/deepslate below.
+- Everwinter (2026-10-16, reworked up to 2026-10-17): rolling, ridged snow ground with drift fields and rarer big snow/ice hills that grow out of it, a few ice cliffs and deep crevasses, two or three serac fields per biome, each a group of 4-7 huge pieces of the glacier ground broken off and tilted 5-30 degrees (low end sunk below the ground, high end a sheer ice face), rare ice spires, occasional deepslate outcrops; smooth transitions in sheltered stretches, harsh edges elsewhere; glacier ice under the snow, stone/deepslate below.
 
 Planned custom biomes
 - Frostscar: large height differences with valleys, canyons, cliffs and steep mountains; mostly deepslate under snow, with ice-and-snow glaciers. Design only; see docs/biomes/frostscar.txt.

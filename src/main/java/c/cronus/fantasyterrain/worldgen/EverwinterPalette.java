@@ -11,7 +11,7 @@ public final class EverwinterPalette {
     /** Depth of the snow cover on gentle open ground before the ice sheet begins. */
     public static final int COVER_DEPTH = 4;
     /** Snow piles are snow down to this depth (pile plus the snow cover beneath it). */
-    public static final int DRIFT_DEPTH = 11;
+    public static final int DRIFT_DEPTH = 16;
     private final EverwinterTerrain noise;
 
     public EverwinterPalette(long seed) {

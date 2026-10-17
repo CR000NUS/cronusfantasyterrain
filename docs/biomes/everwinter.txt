@@ -3,7 +3,7 @@ Recorded: 2026-10-16
 
 Biome ID: cronusfantasyterrain:everwinter
 Region: Frozen Wastes (pool slot 2 of 5; one district per region)
-Status: Implemented custom biome (second version, rougher terrain 2026-10-16; awaiting in-game review).
+Status: Implemented custom biome (seventh version: two or three groups of 4-7 huge tilted ground plates per biome, 2026-10-17; awaiting in-game review).
 
 User design (2026-10-16)
 "It is a biome which is filled with winter, cold, ice and snow. The majority of the ground is covered with snow and ice blocks. Occasionally there are also parts of deepslate reaching out of the ground. The underground is a mix between deepslate and stone (and of course ores and stuff)."
@@ -13,29 +13,49 @@ User update (2026-10-16)
 "Bring in a bit more elevation change. Create hills made up of snow and ice (Small hills/piles made up of snow which appear more often and big snow/ice hills which appear a bit more rare). A few cliffs and tears in the ground which reveal deep ice crevasse." "Make the terrain overall more harsh and rough to pass through."
 References: the same concept image (snow foreground, a broken glacier shelf with columnar ice walls and a crevasse canyon, ice shards) and a close-up of a jumbled field of tabular ice blocks (seracs) separated by deep cracks.
 
+User feedback after the in-game test (2026-10-16)
+1. "Everything looks a bit too isolated and cut off from other interesting terrain. Snow piles are just simple, tiny hills on a flat and boring terrain. It looks like the ground is very flat and boring and every interesting terrain i told you about is just put on top of it." Transitions should use snow layer blocks: "Do not make smooth transitions everywhere. Some parts should have smooth transitions, some should have a more harsh transition." "Only use the snow layer blocks when you have to. If you have to stack 5 snow layers, simply Use snow blocks instead. Only for the smooth transition use snow layers on top of snow blocks."
+2. The broken glacier parts should be "a bit more random. Some can be bigger, some can be smaller, they can be more spread out or stay like they do in the screenshot, most importantly they can also have different heights AND SLIGHT TILT-ROTATION. Meaning they can be these tall pillars or slightly tilted, giant glacier 'plates'" (tilt 20-30 degrees). "The ground here should look more broken."
+
+User feedback after the second in-game test (2026-10-17)
+1. Revert the snow layer transitions and the removal of the vanilla snow layer (freeze_top_layer): the generated layers formed ugly stepped patterns and the missing vanilla snow made a hard, chunk-shaped edge against the neighbouring biomes. "Just put it back to how it was before but still make transitions between snow piles and hills and stuff."
+2. "These are way too many of these Serac fields. Never ever have this many all cluster into one spot. I don't want to have these thin, tall, square pillars but more randomly formed plates which create some more plateaus. Some of these can be tilted 5 degrees, some can be tilted 30 degrees and anything in between."
+
+User feedback after the third in-game test (2026-10-17)
+The hills and elevation changes "feel natural", but the serac plates were still packed together with thin cracks between them: "SPREAD OUT EACH COLUMN! I DO NOT WANT THIS CLUTTERED MESS!" Reference sketches: a few separate, irregular plates with wide gaps (not a tightly packed cluster), and a side view of one plate: a tilted slab whose low end emerges from the ground and whose high end is a sheer face with a crack at its foot.
+
+User feedback after the fourth version (2026-10-17)
+"Change it so that the glacier plates are becoming the new ground. It should not look like they are simply growing out of the ground but they ARE the ground which is tilted and rotated and split up." Sketch: the ground breaks off in a wall down to the plate's low end, which lies below the ground; the plate rises to a sheer high face that drops below the ground on the far side. "Also change the size of these glacier plates to about 300% of their current size. They can spawn with sizes between 250% to 350% of their current size."
+
+User feedback after the in-game test of the sixth version (2026-10-17)
+The terrain and the tilted ground plates "look good" (screenshot: one huge plate tilted up to a sheer ice face, its low end sunk behind a ground wall). "Whenever there is 1 broken glacier plate, there should be at least 3 and at most 6 or 7 others right next to it. Also scale them up a little bit more. Also give them a slightly higher chance to appear more often. Maybe those glacier-plate-groups of 3 to 7 of these plates can appear twice or thrice in the biome."
+
 Terrain (EverwinterTerrain, on top of the shared region interior around Y=80; shares measured by everwinterTest)
-- Rolling ground: broad rises and hollows lifted about 10 blocks above the plain interior (swinging roughly -5 to +25), plus long wind-shaped dunes. 90% of the biome lies between about Y=84 and Y=117; extremes Y=66-179.
-- Small snow piles (frequent; about 0.7 per 40x40 blocks): wind-stretched heaps 2-7 blocks high, 6-14 blocks across, steeper on the lee side. Pure snow.
-- Big snow/ice hills (rarer; about 0.4 per 230x230 blocks, about 4% of the biome): broad mounds 18-42 blocks high, 45-85 blocks across. Snow hills are smooth; icy hills (about half) have a sheer wind-cut face of bare ice on one side and a craggy top.
-- Ice cliffs (a few): the ground steps up 10-20 blocks along long winding lines. In some stretches the step is a sheer, ragged ice cliff; elsewhere it is a slope a few dozen blocks wide, so there are ways around.
+The features grow out of the ground instead of sitting on a flat plain, and a slowly varying shelter field (about half the biome each) decides how they meet it: sheltered stretches get long snow ramps and snow banked against cliffs and outcrops; wind-scoured stretches keep short steep rises and sheer edges. The transitions are shaped by the terrain itself (full blocks only; no generated snow layer blocks).
+- Rolling ground: broad rises and hollows lifted about 10 blocks above the plain interior, medium rolls (about +/-4 blocks over 150 blocks) and wind ridges that are strong in some stretches and calm in others. 90% of the biome lies between about Y=85 and Y=115; extremes Y=66-164.
+- Busy and calm ground: a large-scale activity field makes snow piles and big hills cluster in busy stretches, with calmer snow fields between.
+- Snow piles (common, about 16% of the biome): wind-stretched heaps 2-9 blocks high and 6-22 blocks across (mostly small), steeper on the lee side. In busy ground they form dense drift fields where neighbouring piles merge into ridges. Pure snow.
+- Big snow/ice hills (rarer, about 5% of the biome): mounds 18-42 blocks high, 45-85 blocks across, on a broad low foot (about twice as wide, snow ground) that merges into the surrounding ground, with a long snow tail stretching downwind. Snow hills are smooth; icy hills (about half) have a sheer wind-cut face of bare ice on one side and a craggy top.
+- Ice cliffs (a few): the ground steps up 10-20 blocks along long winding lines. In wind-scoured stretches the step is mostly a sheer, ragged ice cliff; where sheltered it is mostly a slope, and the remaining cliffs have snow banked against their lower half.
 - Crevasses (a few): long, roughly parallel, jagged tears in the ground (like crevasses across a flowing glacier), 3-12 blocks wide and about 18-34 blocks deep, tapering out at both ends; snow lip on top, ice walls down to the floor.
-- Serac fields (about 17% of the biome): broad patches of fractured glacier broken into jumbled ice blocks about 14 blocks across, each with its own height (typically 6-26 blocks above the ground, rare pinnacles up to 34, some collapsed) and a tilted top, separated by narrow cracks 2-12 blocks deep; some neighbouring blocks stay fused. Blocks step down towards the field margin, which ends in sheer, fractured ice walls. Hard to cross.
-- Crevasses and cracks together cover about 5% of the biome; floors never go below Y=66, so they stay dry (sea level 63).
+- Serac fields (two or three per biome, plates about 10-15% of the biome): groups of 4-7 huge pieces of the glacier ground itself, broken off and tilted, lying next to each other: one plate in the middle and the rest in a ring around it, with 16-36 blocks of unbroken snow ground between neighbouring plates (no piles, hills or outcrops on or within about 40 blocks of a plate). Each Everwinter district gets two or three fields (random per region; a small district may get only one), placed well inside the biome (full relief at the field's centre) and at least 50 blocks apart beyond their reach, so fields never merge into one. Plates have irregular, wobbly outlines about 115-235 blocks across (the decision-19 size scaled by another 1.2; cut back where they meet a neighbour) and keep the ground's own rolls on top. Each is tilted 5-30 degrees in its own direction about its middle: the low end sinks below the surrounding ground, which breaks off in an ice wall down to it (at most 20 blocks deep), and the high end rises to a sheer ice face (up to about 35-45 blocks above the ground on long, steep plates, which level off) with a narrow crack 6-14 blocks deep at its foot.
+- Crevasses and cracks together cover well under 1% of the biome; floors never go below Y=66, so they stay dry (sea level 63).
 - Ice spires: rare sharp, slightly leaning shards 8-28 blocks tall.
-- Deepslate outcrops (about 2%): rough rock knobs up to 9 blocks above the snow, kept off serac fields and big hills.
-- The relief fades in over 96 blocks inside the biome edge and over 120 blocks from where the border mask reaches 0, so neighbouring biomes, the border mountains and the deepslate basin are untouched.
+- Deepslate outcrops (about 3%): rough rock knobs up to 9 blocks above the snow, kept off serac fields and big hills; snow banks up around them where sheltered.
+- The relief fades in over 96 blocks inside the biome edge and over 120 blocks from where the border mask reaches zero, so neighbouring biomes, the border mountains and the deepslate basin are untouched.
 
 Materials (EverwinterPalette, Y >= 0; below Y=0 stays vanilla)
 - Open ground: snow blocks 4 deep (1 on steep slopes), with patches of packed ice (about 12% of the surface).
-- Glacier ice sheet beneath the snow: packed ice with thin tilted blue-ice layers, about 1-9 blocks thick on open ground and reaching below the floor of every nearby crevasse or crack, so cliffs, cracks and crevasse walls show ice, not rock.
-- Snow piles: snow throughout. Big hills: 3 blocks of snow over ice, bare ice on steep faces.
-- Serac blocks and crevasse floors: glacier ice, with a single snow block on flat tops. Spires: packed and blue ice.
+- Glacier ice sheet beneath the snow: packed ice with thin tilted blue-ice layers, about 1-9 blocks thick on open ground, and reaching below the floor of every nearby crevasse or crack (and under and around serac fields), so cliffs, cracks and crevasse walls show ice, not rock.
+- Snow piles, hill tails and banked snow: snow throughout (16 blocks deep). Big hills: 3 blocks of snow over ice, bare ice on steep faces.
+- Serac plates and crevasse floors: glacier ice, with a single snow block on gentle tops (bare ice on steep ones). Spires: packed and blue ice.
 - Outcrops: deepslate, with a little snow on flat tops.
 - Underground: stone and deepslate in large blobs (about 46% deepslate between Y=0 and Y=70), deepslate more common deeper down. Vanilla ores and tuff (stone and deepslate ore variants), copper and iron veins, caves.
 - Packed and blue ice are used instead of plain ice so torches do not melt the landscape.
+- On top, vanilla freeze_top_layer adds a single snow layer as in the neighbouring snowy biomes.
 
 Biome settings (biome/everwinter.json)
-- Based on Snowy Plains: temperature -0.7, downfall 0.9, snowfall, frozen water, snow layers on top (freeze_top_layer).
+- Based on Snowy Plains: temperature -0.7, downfall 0.9, snowfall, frozen water, a single snow layer on top (freeze_top_layer, so the edges blend with the neighbouring snowy biomes).
 - Mobs as Snowy Plains (rabbits, polar bears, strays among the monsters).
 - Frozen Peaks music, slightly icier sky colour.
 - No trees, flowers, grass, mushrooms, sugar cane or pumpkins; no dirt, gravel, granite, diorite, andesite, sand/clay/gravel disks or surface lava lakes.

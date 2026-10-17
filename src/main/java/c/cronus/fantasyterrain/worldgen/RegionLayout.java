@@ -233,11 +233,12 @@ public final class RegionLayout {
     }
 
     // Hexagonal rows (odd rows shifted half a spacing) with a small jitter, so neighbours stay evenly spaced.
-    private double siteX(int x, int z) {
+    // Region centre in the bent plane; package-private so EverwinterGroups can search a region (read-only).
+    double siteX(int x, int z) {
         return (x + 0.5 * (z & 1) + 0.5 + (unit(hash(x, z, 0)) - 0.5) * 2 * JITTER) * size;
     }
 
-    private double siteZ(int x, int z) {
+    double siteZ(int x, int z) {
         return (z + 0.5 + (unit(hash(x, z, 1)) - 0.5) * 2 * JITTER) * rowHeight();
     }
 

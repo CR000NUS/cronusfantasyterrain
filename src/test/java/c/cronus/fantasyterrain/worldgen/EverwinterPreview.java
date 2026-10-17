@@ -8,82 +8,142 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
 
-/** Software previews of Everwinter at full strength: top-down map and an oblique view. Not in-game screenshots. */
+/**
+ * Software previews of Everwinter at full strength: top-down map, an oblique overview and an oblique close-up of
+ * a serac field, all with block steps as they would generate. Not in-game screenshots.
+ */
 public final class EverwinterPreview {
     private static final int SIZE_X = 900, SIZE_Z = 700;
+    private static final Color SKY = new Color(64, 104, 168);
 
     public static void main(String[] args) throws Exception {
         Path output = Path.of(args[0]);
         Files.createDirectories(output.toAbsolutePath().getParent());
         EverwinterTerrain terrain = new EverwinterTerrain(777L);
         EverwinterPalette palette = new EverwinterPalette(99L);
-        int originX = 400, originZ = -300;
-        float[][] heights = new float[SIZE_Z][SIZE_X];
-        Color[][] colors = new Color[SIZE_Z][SIZE_X];
-        for (int z = 0; z < SIZE_Z; z++) {
-            for (int x = 0; x < SIZE_X; x++) {
-                heights[z][x] = terrain.column(originX + x, originZ + z, 80, 1).height();
+        Area overview = new Area(terrain, palette, 400, -300, SIZE_X, SIZE_Z);
+        writeTopDown(overview, 1, output, "Everwinter top-down: 900 x 700 blocks, 1 px per block, full biome strength");
+        writeOblique(overview, 1, 0.55, 2.2, output.resolveSibling("everwinter-view.png"),
+                "Everwinter oblique view looking north (vertical scale x2.2)");
+        // Close-up of a whole serac field: the grid field nearest the overview's centre.
+        EverwinterTerrain.Group field = null;
+        for (int z = -2000; z <= 2000 && field == null; z += 200) {
+            for (int x = -2000; x <= 2000 && field == null; x += 200) {
+                EverwinterTerrain.Group[] groups = terrain.gridGroups(850 + x, 50 + z);
+                if (groups.length > 0) field = groups[0];
             }
         }
-        for (int z = 0; z < SIZE_Z; z++) {
-            for (int x = 0; x < SIZE_X; x++) {
-                int bx = originX + x, bz = originZ + z;
-                EverwinterTerrain.Column column = terrain.column(bx, bz, 80, 1);
-                int top = (int) Math.ceil(column.height()) - 1;
-                float gx = heights[z][Math.min(SIZE_X - 1, x + 1)] - heights[z][Math.max(0, x - 1)];
-                float gz = heights[Math.min(SIZE_Z - 1, z + 1)][x] - heights[Math.max(0, z - 1)][x];
-                boolean gentle = Math.abs(gx) < 3 && Math.abs(gz) < 3;
-                colors[z][x] = color(palette.select(bx, top, bz, top, column.iceBase(), column.feature(), gentle));
-            }
-        }
-        writeTopDown(heights, colors, output);
-        writeOblique(heights, colors, palette, terrain, originX, originZ, output.resolveSibling("everwinter-view.png"));
+        int fieldX = field == null ? 850 : (int) field.x(), fieldZ = field == null ? 50 : (int) field.z();
+        Area closeUp = new Area(terrain, palette, fieldX - 380, fieldZ - 300, 760, 600);
+        writeOblique(closeUp, 1, 0.6, 1.2, output.resolveSibling("everwinter-closeup.png"),
+                "Everwinter serac field looking north, true vertical scale");
+        writeTopDown(closeUp, 1, output.resolveSibling("everwinter-seracs.png"),
+                "Everwinter serac field from above: 760 x 600 blocks, 1 px per block");
     }
 
-    private static void writeTopDown(float[][] heights, Color[][] colors, Path output) throws Exception {
-        BufferedImage image = new BufferedImage(SIZE_X, SIZE_Z + 50, BufferedImage.TYPE_INT_RGB);
-        for (int z = 0; z < SIZE_Z; z++) {
-            for (int x = 0; x < SIZE_X; x++) {
-                double slope = heights[z][Math.max(0, x - 1)] - heights[z][x] + heights[Math.max(0, z - 1)][x] - heights[z][x];
-                image.setRGB(x, z, shade(colors[z][x], Math.clamp(0.9 + slope * 0.06, 0.45, 1.15)).getRGB());
+    /** Block-quantized surface of an area: top block and colours. */
+    private static final class Area {
+        final int originX, originZ, sizeX, sizeZ;
+        final float[][] surfaces;
+        final int[][] tops, features;
+        final Color[][] colors;
+        final EverwinterTerrain.Column[][] columns;
+        final EverwinterPalette palette;
+
+        Area(EverwinterTerrain terrain, EverwinterPalette palette, int originX, int originZ, int sizeX, int sizeZ) {
+            this.originX = originX;
+            this.originZ = originZ;
+            this.sizeX = sizeX;
+            this.sizeZ = sizeZ;
+            this.palette = palette;
+            surfaces = new float[sizeZ][sizeX];
+            tops = new int[sizeZ][sizeX];
+            features = new int[sizeZ][sizeX];
+            colors = new Color[sizeZ][sizeX];
+            columns = new EverwinterTerrain.Column[sizeZ][sizeX];
+            for (int z = 0; z < sizeZ; z++) {
+                for (int x = 0; x < sizeX; x++) {
+                    columns[z][x] = terrain.column(originX + x, originZ + z, 80, 1);
+                    tops[z][x] = (int) Math.ceil(columns[z][x].height()) - 1;
+                    features[z][x] = columns[z][x].feature();
+                }
+            }
+            for (int z = 0; z < sizeZ; z++) {
+                for (int x = 0; x < sizeX; x++) {
+                    // Same gradient rule as the material rule (heightmap differences over two blocks).
+                    int gx = tops[z][Math.min(sizeX - 1, x + 1)] - tops[z][Math.max(0, x - 1)];
+                    int gz = tops[Math.min(sizeZ - 1, z + 1)][x] - tops[Math.max(0, z - 1)][x];
+                    boolean gentle = Math.abs(gx) < 3 && Math.abs(gz) < 3;
+                    colors[z][x] = color(palette.select(originX + x, tops[z][x], originZ + z, tops[z][x],
+                            columns[z][x].iceBase(), features[z][x], gentle));
+                    surfaces[z][x] = tops[z][x] + 1;
+                }
             }
         }
-        caption(image, SIZE_Z, "Everwinter top-down: 900 x 700 blocks, 1 px per block, full biome strength | software preview");
+
+        Color side(int x, int z, int y) {
+            return color(palette.select(originX + x, y, originZ + z, tops[z][x], columns[z][x].iceBase(), features[z][x], false));
+        }
+    }
+
+    private static void writeTopDown(Area area, int scale, Path output, String title) throws Exception {
+        BufferedImage image = new BufferedImage(area.sizeX * scale, area.sizeZ * scale + 50, BufferedImage.TYPE_INT_RGB);
+        float[][] s = area.surfaces;
+        for (int z = 0; z < area.sizeZ; z++) {
+            for (int x = 0; x < area.sizeX; x++) {
+                double slope = s[z][Math.max(0, x - 1)] - s[z][x] + s[Math.max(0, z - 1)][x] - s[z][x];
+                int rgb = shade(area.colors[z][x], Math.clamp(0.9 + slope * 0.06, 0.45, 1.15)).getRGB();
+                for (int pz = 0; pz < scale; pz++) {
+                    for (int px = 0; px < scale; px++) image.setRGB(x * scale + px, z * scale + pz, rgb);
+                }
+            }
+        }
+        caption(image, area.sizeZ * scale, title + " | software preview");
         ImageIO.write(image, "png", output.toFile());
         System.out.println("Everwinter preview: " + output.toAbsolutePath());
     }
 
-    /** Oblique view looking north with painter's ordering; each block column is drawn as a vertical strip. */
-    private static void writeOblique(float[][] heights, Color[][] colors, EverwinterPalette palette, EverwinterTerrain terrain,
-                                     int originX, int originZ, Path output) throws Exception {
-        int width = SIZE_X, height = 760;
-        double rowStep = 0.55, lift = 2.2;
+    /**
+     * Oblique view looking north with painter's ordering; each block column is drawn as a vertical strip of
+     * {@code scale} pixels, rows {@code rowStep} pixels apart, {@code lift} pixels per block of height.
+     */
+    private static void writeOblique(Area area, int scale, double rowStep, double lift, Path output, String title) throws Exception {
+        int width = area.sizeX * scale;
+        float highest = 0, lowest = 999;
+        for (float[] row : area.surfaces) {
+            for (float value : row) {
+                highest = Math.max(highest, value);
+                lowest = Math.min(lowest, value);
+            }
+        }
+        int height = (int) ((area.sizeZ - 1) * rowStep + (highest - lowest) * lift) + 80;
         BufferedImage image = new BufferedImage(width, height + 50, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = image.createGraphics();
-        g.setColor(new Color(64, 104, 168));
+        g.setColor(SKY);
         g.fillRect(0, 0, width, height);
+        g.dispose();
         int[] lowestDrawn = new int[width];
         java.util.Arrays.fill(lowestDrawn, height);
         // Nearest rows first; a column is only drawn above what nearer rows already cover.
-        for (int z = SIZE_Z - 1; z >= 0; z -= 1) {
-            for (int x = 0; x < width; x++) {
-                int screenTop = (int) (height - 40 - (SIZE_Z - 1 - z) * rowStep - (heights[z][x] - 60) * lift);
-                if (screenTop >= lowestDrawn[x]) continue;
-                double slope = heights[z][Math.max(0, x - 1)] - heights[z][x];
-                Color top = shade(colors[z][x], Math.clamp(0.95 + slope * 0.08, 0.5, 1.15));
-                int bx = originX + x, bz = originZ + z;
-                EverwinterTerrain.Column column = terrain.column(bx, bz, 80, 1);
-                for (int y = Math.max(0, screenTop); y < lowestDrawn[x] && y < height; y++) {
-                    int depth = (int) ((y - screenTop) / lift);
-                    Color c = depth == 0 ? top : shade(color(palette.select(bx, (int) heights[z][x] - 1 - depth, bz,
-                            (int) heights[z][x] - 1, column.iceBase(), column.feature(), false)), 0.72);
-                    image.setRGB(x, y, c.getRGB());
+        for (int z = area.sizeZ - 1; z >= 0; z--) {
+            for (int x = 0; x < area.sizeX; x++) {
+                float surface = area.surfaces[z][x];
+                int screenTop = (int) (height - 40 - (area.sizeZ - 1 - z) * rowStep - (surface - lowest) * lift);
+                double slope = area.surfaces[z][Math.max(0, x - 1)] - surface;
+                Color top = shade(area.colors[z][x], Math.clamp(0.95 + slope * 0.08, 0.5, 1.15));
+                for (int px = x * scale; px < (x + 1) * scale; px++) {
+                    if (screenTop >= lowestDrawn[px]) continue;
+                    for (int y = Math.max(0, screenTop); y < lowestDrawn[px] && y < height; y++) {
+                        int depth = (int) ((y - screenTop) / lift);
+                        Color c = y - screenTop < Math.max(1, rowStep) ? top
+                                : shade(area.side(x, z, area.tops[z][x] - depth), 0.72);
+                        image.setRGB(px, y, c.getRGB());
+                    }
+                    lowestDrawn[px] = Math.max(0, screenTop);
                 }
-                lowestDrawn[x] = Math.max(0, screenTop);
             }
         }
-        g.dispose();
-        caption(image, height, "Everwinter oblique view looking north (vertical scale x2.2) | software preview, not in-game");
+        caption(image, height, title + " | software preview, not in-game");
         ImageIO.write(image, "png", output.toFile());
         System.out.println("Everwinter view: " + output.toAbsolutePath());
     }

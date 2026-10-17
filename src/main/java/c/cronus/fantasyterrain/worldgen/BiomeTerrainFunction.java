@@ -22,6 +22,8 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
      * all need the same (fairly expensive) Everwinter column.
      */
     private static final ThreadLocal<ColumnCache> CACHE = ThreadLocal.withInitial(ColumnCache::new);
+    /** Serac field placement per generator setup (see {@link EverwinterGroups}). */
+    private static final java.util.Map<Long, EverwinterGroups> GROUPS = new java.util.concurrent.ConcurrentHashMap<>();
     public static final MapCodec<BiomeTerrainFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3800).forGetter(BiomeTerrainFunction::regionSize),
             Codec.intRange(32, 512).optionalFieldOf("border_width", 360).forGetter(BiomeTerrainFunction::borderWidth),
@@ -46,6 +48,9 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
         BiomeDistricts districts = new BiomeDistricts(districtSeed, regionSize);
         // Identifies this generator setup in the shared cache (same seeds and sizes give the same columns).
         long setup = ((layoutSeed * 31 + everwinterSeed) * 31 + districtSeed) * 31 + regionSize * 1031L + borderWidth;
+        // Serac field placement is searched once per region, so it is shared by all samplers of a setup.
+        EverwinterGroups groups = GROUPS.computeIfAbsent(setup,
+                key -> new EverwinterGroups(layout, districts, everwinter, borderWidth, everwinterSeed));
         return new DensitySampler() {
             private Column column(int x, int z) {
                 return CACHE.get().get(setup, x, z, this::compute);
@@ -62,7 +67,7 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
                 boolean member = district.slot() == FrozenLand.EVERWINTER_SLOT;
                 double weight = member ? EverwinterTerrain.districtWeight(district.edge())
                         * EverwinterTerrain.edgeFade(sample.edgeDistance(), borderWidth) : 0;
-                return new Column(everwinter.column(x, z, base, weight), member);
+                return new Column(everwinter.column(x, z, base, weight, groups.groups(sample)), member);
             }
 
             @Override
