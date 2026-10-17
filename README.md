@@ -7,3 +7,9 @@ themed regions with mountain borders. It currently targets Minecraft
 See [the region guide](docs/regions.md) for biome placeholders, tuning, and current scope.
 Run `gradlew.bat build` to build and validate the region geometry, or
 `gradlew.bat regionPreview` to generate `build/reports/regions/preview.png`.
+
+first preview stuff:
+
+<img width="1892" height="977" alt="image" src="https://github.com/user-attachments/assets/a0523f51-7fcb-4785-9fe7-19591d159ca1" />
+
+
