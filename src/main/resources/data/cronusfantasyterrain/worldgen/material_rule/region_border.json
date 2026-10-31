@@ -6,5 +6,7 @@
   "fringe": "cronusfantasyterrain:everwinter_fringe",
   "cover": "cronusfantasyterrain:biome_height",
   "everwinter": "cronusfantasyterrain:everwinter_member",
-  "ice_base": "cronusfantasyterrain:everwinter_ice_base"
+  "ice_base": "cronusfantasyterrain:everwinter_ice_base",
+  "canyon": "cronusfantasyterrain:howling_canyon_member",
+  "canyon_bed": "cronusfantasyterrain:howling_canyon_bed"
 }

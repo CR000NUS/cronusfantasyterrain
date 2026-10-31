@@ -6,7 +6,7 @@ Region: Verdant Valley
 Status: Vanilla placeholder in the Fantasy Regions preset.
 
 Note
-Also the fixed biome of the earlier Test World preset.
+Was also the fixed biome of the earlier Test World preset (removed 2026-10-16).
 
 Current behavior
 - Forms exactly one district in each region of its pool (BiomeDistricts).

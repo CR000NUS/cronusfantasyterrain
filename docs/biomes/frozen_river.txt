@@ -3,18 +3,18 @@ Recorded: 2026-10-10
 
 Biome ID: minecraft:frozen_river
 Region: Frozen Wastes
-Status: Vanilla placeholder in the Fantasy Regions preset.
+Status: No longer used. It was the vanilla placeholder in Frozen Wastes pool slot 4 until 2026-10-17, when Howling Canyon replaced it (user's choice; see docs/biomes/howling_canyon.txt).
 
 Note
 Selecting this biome does not carve a river.
 
-Current behavior
-- Forms exactly one district in each region of its pool (BiomeDistricts).
+Former behavior
+- Formed exactly one district in each region of its pool (BiomeDistricts).
 - Surface rules, vegetation, mobs, structures and carvers are vanilla.
 - Terrain is the shared region interior (about Y=75-85); the biome does not shape it.
 
-Future design
-No custom replacement has been specified yet.
+Replacement
+Howling Canyon (cronusfantasyterrain:howling_canyon) takes over the slot; its main canyon carries its own frozen river.
 
 Sources (relative to repository root)
 src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json

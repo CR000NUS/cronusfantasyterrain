@@ -1,0 +1,75 @@
+Howling Canyon
+Recorded: 2026-10-17
+
+Biome ID: cronusfantasyterrain:howling_canyon
+Region: Frozen Wastes (pool slot 4 of 5, replacing the Frozen River placeholder; one district per region)
+Status: Implemented custom biome (fourth version: separate glacier massifs, 2026-10-17, cliffs as flat walls in 2-3 steps the same day; overhauled to natural, irregular shapes on 2026-10-30, decision 32; awaiting in-game review). Not committed yet (the user's choice, 2026-10-30).
+
+User design (2026-10-17)
+"This biome is called 'Howling Canyon'. It will be made up of snow and ice in a realistic and natural way. In the underground will be stone and deepslate."
+Reference images:
+1. Concept art of a frozen canyonland: a high, snow-covered tableland of glacier ice cut by a winding canyon with a broken, frozen river on its floor; the walls climb in tiers of sheer, fluted blue-ice cliffs separated by snowy ledges, with side canyons and flat-topped mesas on the horizon. "For this reference image/concept art i want the canyon to be a bit wider."
+2. A Minecraft badlands canyon: a wide, winding valley with a flat floor and a river, terraced (stratified) slopes and table mountains on both sides. "I obviously want it to be in an ice and snow theme, not badlands theme but create terrain which represents this image/concept art's terrain."
+User feedback after the in-game test of the first version (2026-10-17)
+"Change the Howling Canyon biome so that it never has these closed off rivers and overall is not this closed off" (screenshot: the main canyon's floor and river ending in a stepped box-canyon head). "At the end of the rivers, it should always be open so the frozen river can 'flow' into other biomes. Also create a handful of gaps into the canyon. Some going down to the first layer, some the second and some all the way to the ground." (Decision 28.)
+User feedback after the in-game test of the second version (2026-10-17)
+"I said to make gaps in between the canyon! Instead of 2 giant fucking glacier walls left and right of the fucking river - create 'mountain-like' canyon walls!" (screenshot: two long, continuous terraced walls on either side of the river.) Sketches: not like this - nested contour lines running parallel to the river all along it; like this - the river winding through open ground, with separate, lobed glacier masses on both sides, each with nested contour lines inside (rising in tiers towards its middle), and ground between them. (Decision 29.)
+User feedback on the third version (2026-10-17)
+"The biome looks good. Don't change the terrain itself but do a simple change: Change the walls of the glacier 'mountains' from looking like these straight walls [screenshot: flat, sheer, vertically striped ice walls] to these ones [screenshot: an ice cliff stepping out from the wall]." A first attempt (random one-block ice columns of different heights at the foot of every cliff) was rejected: "I DID NOT FUCKING ASK TO HAVE RANDOM JAGGED WALLS! I ASKED TO SIMPLY HAVE THE WALLS HAVE SOME STEPS IN THEM LIKE 2 OR 3! NOT BE STRAIGHT FUCKING FLAT OR JAGGED AND UNPASSABLE! ... MAKE THE WALLS FLAT BUT ADD SIMPLE DAMN STEPS!" (Decision 30.)
+User request after the natural-terrain rule (2026-10-30)
+"Please overhaul the entire Howling Canyon biome with the new 'natural' rule." (Decision 31 had been recorded after the biome was built; decision 32.)
+
+Pool slot: the user chose to replace the Frozen River placeholder (asked 2026-10-17), so the pool stays at five biomes and every other district, Everwinter's included, keeps its place and size.
+
+Terrain (HowlingCanyonTerrain, on top of the shared region interior around Y=80; shares measured by howlingCanyonTest)
+Open snow ground with the frozen river winding through it, between separate glacier massifs (decision 29). No continuous canyon walls. Every shape is natural and irregular (decisions 31-32): no circles, ellipses, polygons, straight lines, evenly spaced rings or grid; plain where the user asked for plain (flat walls with 2-3 even steps).
+- Ground: flat snow ground at about Y=66 between the massifs and along the river, about half of the biome.
+- Glacier massifs: scattered irregularly (one site per cell of a 300-block grid, placed anywhere in its cell, about 15% of the cells open ground; spacing between neighbours varies by about a third). Sizes vary a lot (base radius about 125-275 blocks, small ones more common). Each outline varies with direction at several scales: lopsided (egg-shaped), elongated, three- or four-lobed, plus broad lobes and bays; where it is cut back from a neighbour the dividing line curves (bigger massifs claim more room) and the corners are broadly rounded. Narrow parts pull back, so spurs end in rounded noses instead of needle points or thin fins.
+- Tiers: like a mountain, a massif rises from the first sheer ice cliff at its outline in tiers of benches and cliffs (each cliff about 18-28 blocks, varying across the land by about a quarter, so neighbouring massifs and stretches of one cliff differ) to an off-centre summit, with a flat top around it. About 40% of the massifs have a lower second summit (one or two tiers lower) across from the main one. The side nearer the summit is steep with narrow benches, the far side gentle with wide benches (never gentler than a set minimum, so cliffs stay sheer), and the profile varies per massif (steep foot and broad shoulders, or gentle foot and steeper top), so the tier rings are neither evenly spaced nor parallel to the outline. A squeezed summit first moves round to a roomier side, then inwards; a massif with little room gets fewer tiers, not steeper walls. Massifs have one to four tiers (mostly two or three), up to about Y=153.
+- Cliff faces (decision 30): every tier cliff, including the first one up from the ground, is a flat wall split into 2 or 3 even steps (fixed per massif and tier, so the same all along that cliff): sheer pieces of wall with a flat ledge about 1-2 blocks deep between them. No random columns, no jagged faces, no fine wobble on the cliff lines (it frayed them on narrow ridges); the lines follow the outlines' natural curves. Saddles rise from their edges in the same stepped cliffs, so nowhere is there a tall flat wall (no drop over 20 blocks between neighbouring columns; checked by howlingCanyonTest).
+- Gaps between the massifs: two neighbouring massifs never merge; where their outlines would meet they are cut back 10-30 blocks on each side (the gap widening and narrowing along its length), with rounded corners. Most gaps go all the way down to the ground; the rest are saddles, passes at the first or second tier joining two massifs that face each other (never a free-standing ridge across an empty cell or another massif's ground). Along the river a gap between massifs comes about every 300 blocks.
+- River: one per district (searched per region by HowlingCanyonCourses), meandering right through the district and out of it at both ends (about 1100-2100 blocks of course) in bends of uneven length and swing (no sine wave: bends about 40-375 blocks long) plus a slow drift of the whole course; never closed off (decision 28): ends that open into neighbouring biomes are preferred (about 90%), the rest open towards the mountain foot. A strip of open ground about 40-120 blocks wide runs along it, its edges wandering independently of the river at two scales; where a massif or saddle meets it, it is rounded off and narrow leftovers pull back, so no sliver or lone knob stands by the river.
+- Frozen river: 12-24 blocks wide, its ice a block below the snowy ground (Y=64-65), running along the whole course up to the biome edge, where it meets the neighbouring biome's ground. It stops at the biome boundary: continuing it into the neighbouring biomes would change those biomes and needs the user's decision first (decision 26).
+- Nothing reaches sea level (lowest surface Y=64), so no water collects.
+- Edge: the relief fades in over 220 blocks inside the biome edge and over 160 blocks from where the border mask reaches zero (towards the mountains only where no glacier comes down, see below); the ground rises smoothly to the neighbouring ground (no steps) and the massifs there get lower, their cliffs shrinking but staying sheer. Borders, the deepslate basin and the neighbouring biomes (Everwinter included) are untouched.
+- Removed in the third version: the continuous canyon walls and tableland, the side canyons and the gullies cut through the walls (the gaps between massifs replace them).
+- Changed in the fourth version (decision 32): the even grid, stretched-ellipse outlines, centred tops with evenly spaced concentric rings, straight dividing lines, the sine-wave river and the fine cliff-line wobble. The concept (separate massifs, ground gaps and saddles, the open river, flat walls in 2-3 steps, materials) is unchanged.
+
+Glaciers from the border mountains (HowlingCanyonTerrain.glacier, decision 33, 2026-10-30; awaiting in-game review)
+User request: change the transition to the Region Border (screenshot: a massif smearing into a long smooth slope down to flat ground before the mountain). A broken-up icefall with "exploded" rock was tried and rejected ("It does not look good. Revert the changes and forget about the broken up, jagged glacier parts."). Reference image instead: a glacier coming down from a mountain range as one big ice body, ending in a tall ice wall above a flat valley. "Imagine the mountains in the back are the border and the glacier in the front is coming down from it and turns into the canyon walls."
+- From about 150 blocks before the border mask begins, every massif reaches out to the mountains and becomes the tongue of a glacier: no fading, no valley before the mountain.
+- Its surface rises from the massif's top tier towards the mountains (varying along the mountain), in the canyon's own benches and flat walls in 2-3 even steps; its sides and front are the canyon walls (no drop over 20 blocks). On average the glaciers stand about 40 blocks above the canyon floor before the mountains.
+- On the mountain it continues as a sheet of ice 10-22 blocks thick on top of the unchanged rock, thinning out unevenly 110-190 blocks into the belt, so the glacier comes down from the mountain between dark rock ridges.
+- Gaps between massifs, empty cells and the river's strip keep their way to the mountain foot (about half of the ground before the mountains stays open).
+- Rejected (2026-10-30): merging the glaciers into one continuous glacier wall along the mountains, tried to close a trench the user showed between a glacier wall and the ice on the mountain. "Never did i ever tell you to make the glacier canyon wall that is next to the region border one continous giant wall!" Reverted; the glaciers stay separate tongues. The trench itself is still open.
+- Materials: the canyon's glacier ice (strata, blue-ice columns, snow on gentle tops) above the rock; the border's own rock and snow below and around it.
+
+Materials (HowlingCanyonPalette, Y >= 0; below Y=0 stays vanilla)
+- Glacier ice from about Y=60 (a few blocks under the ground) up to the surface: horizontal strata of packed ice and blue ice with thin white firn bands of snow, crossed by vertical blue-ice columns that flute the cliff faces.
+- Snow cover 3 blocks deep on gentle ground (ground, benches, massif tops), with a few small packed-ice patches; cliff faces bare ice.
+- Frozen river: snow-covered floes split by bare packed-ice leads, packed ice beneath.
+- Underground: stone and deepslate in large blobs (about half deepslate between Y=0 and Y=60), deepslate more common deeper down. Vanilla ores, tuff, copper and iron veins.
+- Packed and blue ice are used instead of plain ice so torches do not melt the landscape.
+- On top, vanilla freeze_top_layer adds a single snow layer as in the neighbouring snowy biomes (not on packed ice, so the river leads stay bare).
+
+Biome settings (biome/howling_canyon.json)
+- Based on Everwinter's settings: temperature -0.7, downfall 0.9, snowfall, frozen water, a single snow layer on top (freeze_top_layer).
+- No water springs or lakes; no ravine carver (it would cut slots through the ice walls); caves stay. Lava springs and deep lava lakes stay.
+- Mobs as Snowy Plains (rabbits, polar bears, strays among the monsters).
+- Frozen Peaks music, pale icy sky colour.
+- No trees, flowers, grass or other vegetation; no dirt, gravel, granite, diorite, andesite or surface lava lakes.
+
+Still to design
+Vegetation (if any), structures, custom mobs, ambient sound (the "howling" wind).
+
+Sources (relative to repository root)
+src/main/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonTerrain.java
+src/main/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonCourses.java
+src/main/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonColumns.java
+src/main/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonPalette.java
+src/main/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonMaterialRule.java
+src/main/java/c/cronus/fantasyterrain/worldgen/BiomeTerrainFunction.java
+src/main/resources/data/cronusfantasyterrain/worldgen/biome/howling_canyon.json
+src/main/resources/data/cronusfantasyterrain/worldgen/material_rule/howling_canyon.json
+src/test/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonTest.java
+src/test/java/c/cronus/fantasyterrain/worldgen/HowlingCanyonPreview.java

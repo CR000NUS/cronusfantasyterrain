@@ -9,20 +9,24 @@ import net.minecraft.util.Interval;
 import net.minecraft.world.level.levelgen.densityfunction.*;
 
 /**
- * Region terrain plus biome relief (currently Everwinter in the Frozen Wastes). Wherever no biome relief
- * applies, including every column the border touches, the output equals the plain region terrain.
+ * Region terrain plus biome relief (Everwinter and Howling Canyon in the Frozen Wastes). Wherever no biome relief
+ * applies, including every column the border touches (apart from Everwinter's own side, decisions 24-25), the
+ * output equals the plain region terrain. Everwinter's columns come from {@link EverwinterColumns} alone, so
+ * Howling Canyon never changes them.
  * Output {@code district} is the router's vegetation channel: the packed biome-district slots
  * ({@link BiomeDistricts#code}) the biome source picks pool entries from, so terrain and biomes always agree.
  */
 public record BiomeTerrainFunction(int regionSize, int borderWidth, Output output) implements DensityFunction {
-    public enum Output { DENSITY, HEIGHT, EVERWINTER, FEATURE, ICE_BASE, DISTRICT, FRINGE }
+    public enum Output { DENSITY, HEIGHT, EVERWINTER, FEATURE, ICE_BASE, DISTRICT, FRINGE, CANYON, CANYON_FEATURE, CANYON_BED }
     /**
      * Recent columns per worldgen thread, shared by all outputs: each output compiles its own sampler, but they
-     * all need the same (fairly expensive) Everwinter column.
+     * all need the same (fairly expensive) biome column.
      */
     private static final ThreadLocal<ColumnCache> CACHE = ThreadLocal.withInitial(ColumnCache::new);
     /** Serac field placement per generator setup (see {@link EverwinterGroups}). */
     private static final java.util.Map<Long, EverwinterGroups> GROUPS = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Canyon layout per generator setup (see {@link HowlingCanyonCourses}). */
+    private static final java.util.Map<Long, HowlingCanyonCourses> COURSES = new java.util.concurrent.ConcurrentHashMap<>();
     public static final MapCodec<BiomeTerrainFunction> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.intRange(1024, 32768).optionalFieldOf("region_size", 3800).forGetter(BiomeTerrainFunction::regionSize),
             Codec.intRange(32, 512).optionalFieldOf("border_width", 360).forGetter(BiomeTerrainFunction::borderWidth),
@@ -30,7 +34,7 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
                         try {
                             return DataResult.success(Output.valueOf(s.toUpperCase(java.util.Locale.ROOT)));
                         } catch (IllegalArgumentException exception) {
-                            return DataResult.error(() -> "Unknown biome terrain output '" + s + "'; expected density, height, everwinter, feature, ice_base, district, or fringe");
+                            return DataResult.error(() -> "Unknown biome terrain output '" + s + "'; expected density, height, everwinter, feature, ice_base, district, fringe, canyon, canyon_feature, or canyon_bed");
                         }
                     },
                     o -> o.name().toLowerCase(java.util.Locale.ROOT)).fieldOf("output").forGetter(BiomeTerrainFunction::output)
@@ -51,22 +55,40 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
         EverwinterGroups groups = GROUPS.computeIfAbsent(setup,
                 key -> new EverwinterGroups(layout, districts, everwinter, borderWidth, everwinterSeed));
         EverwinterColumns columns = new EverwinterColumns(layout, districts, everwinter, groups, borderWidth);
+        long canyonSeed = context.createRandom(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "howling_canyon")).nextLong();
+        HowlingCanyonTerrain canyon = new HowlingCanyonTerrain(canyonSeed);
+        HowlingCanyonCourses courses = COURSES.computeIfAbsent(setup,
+                key -> new HowlingCanyonCourses(layout, districts, canyon, borderWidth, canyonSeed));
+        HowlingCanyonColumns canyonColumns = new HowlingCanyonColumns(layout, districts, canyon, courses, borderWidth);
+        ColumnSource source = (x, z) -> {
+            HowlingCanyonColumns.Column canyonColumn = canyonColumns.column(x, z);
+            if (canyonColumn == null) return new Column(columns.column(x, z), null);
+            // Outside Everwinter its outputs are those of a plain column, exactly as EverwinterColumns gives them.
+            float rock = canyonColumn.rockTop();
+            return new Column(new EverwinterColumns.Column(new EverwinterTerrain.Column(rock, rock, EverwinterTerrain.PLAIN),
+                    false, canyonColumn.border(), rock, 0), canyonColumn);
+        };
         return new DensitySampler() {
-            private EverwinterColumns.Column column(int x, int z) {
-                return CACHE.get().get(setup, x, z, columns::column);
+            private Column column(int x, int z) {
+                return CACHE.get().get(setup, x, z, source);
             }
 
             @Override
             public float sampleValue(SamplerContext context, int x, int y, int z) {
                 if (output == Output.DISTRICT) return districts.code(layout.sample(x, z));
-                EverwinterColumns.Column column = column(x, z);
+                Column column = column(x, z);
+                EverwinterColumns.Column frozen = column.everwinter();
+                HowlingCanyonColumns.Column canyon = column.canyon();
                 return switch (output) {
-                    case DENSITY -> density(column.terrain().height(), y);
-                    case HEIGHT -> column.terrain().height();
-                    case EVERWINTER -> column.member() ? 1 : 0;
-                    case FEATURE -> column.terrain().feature();
-                    case ICE_BASE -> column.terrain().iceBase();
-                    case FRINGE -> column.fringe();
+                    case DENSITY -> density(column.height(), y);
+                    case HEIGHT -> column.height();
+                    case EVERWINTER -> frozen.member() ? 1 : 0;
+                    case FEATURE -> frozen.terrain().feature();
+                    case ICE_BASE -> frozen.terrain().iceBase();
+                    case FRINGE -> frozen.fringe();
+                    case CANYON -> canyon != null && canyon.member() ? 1 : 0;
+                    case CANYON_FEATURE -> canyon != null ? canyon.feature() : HowlingCanyonTerrain.PLATEAU;
+                    case CANYON_BED -> canyon != null ? canyon.bed() : frozen.rockTop();
                     case DISTRICT -> throw new IllegalStateException();
                 };
             }
@@ -78,7 +100,7 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
                     for (int x = 0; x < volume.sizeX(); x++) {
                         int blockX = volume.blockX(x), blockZ = volume.blockZ(z);
                         if (output == Output.DENSITY) {
-                            float height = column(blockX, blockZ).terrain().height();
+                            float height = column(blockX, blockZ).height();
                             for (int y = 0; y < volume.sizeY(); y++) buffer.set(index++, density(height, volume.blockY(y)));
                         } else {
                             float value = sampleValue(context, blockX, 0, blockZ);
@@ -90,18 +112,25 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
         };
     }
 
-    private interface ColumnSource { EverwinterColumns.Column column(int x, int z); }
+    /** Everwinter's column (a plain one outside Everwinter) and, in Howling Canyon districts, the canyon column. */
+    private record Column(EverwinterColumns.Column everwinter, HowlingCanyonColumns.Column canyon) {
+        float height() {
+            return canyon != null ? canyon.height() : everwinter.terrain().height();
+        }
+    }
+
+    private interface ColumnSource { Column column(int x, int z); }
 
     /** Direct-mapped cache of the last few thousand columns (a 64 x 64 block window). */
     private static final class ColumnCache {
         private static final int SIZE = 4096;
         private final long[] setups = new long[SIZE], positions = new long[SIZE];
-        private final EverwinterColumns.Column[] columns = new EverwinterColumns.Column[SIZE];
+        private final Column[] columns = new Column[SIZE];
 
-        EverwinterColumns.Column get(long setup, int x, int z, ColumnSource compute) {
+        Column get(long setup, int x, int z, ColumnSource compute) {
             long position = (long) x << 32 | (z & 0xFFFFFFFFL);
             int slot = (x & 63) | (z & 63) << 6;
-            EverwinterColumns.Column column = columns[slot];
+            Column column = columns[slot];
             if (column == null || setups[slot] != setup || positions[slot] != position) {
                 column = compute.column(x, z);
                 columns[slot] = column;
@@ -122,9 +151,10 @@ public record BiomeTerrainFunction(int regionSize, int borderWidth, Output outpu
     @Override public int domainAxes() { return output == Output.DENSITY ? ALL_AXES : AXIS_X | AXIS_Z; }
     @Override public Interval range() {
         return switch (output) {
-            case HEIGHT, ICE_BASE -> Interval.of(8, 310);
-            case EVERWINTER, FRINGE -> Interval.of(0, 1);
+            case HEIGHT, ICE_BASE, CANYON_BED -> Interval.of(8, 310);
+            case EVERWINTER, FRINGE, CANYON -> Interval.of(0, 1);
             case FEATURE -> Interval.of(0, EverwinterTerrain.FEATURES - 1);
+            case CANYON_FEATURE -> Interval.of(0, HowlingCanyonTerrain.FEATURES - 1);
             case DENSITY -> Interval.of(-16, 16);
             case DISTRICT -> Interval.of(0, BiomeDistricts.CODES - 1);
         };

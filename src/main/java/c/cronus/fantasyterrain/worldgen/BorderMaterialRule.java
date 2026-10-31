@@ -17,11 +17,12 @@ import net.minecraft.world.level.levelgen.material.rule.RuleEvaluator;
  * Returns null outside the border so later rules can run. On Everwinter's side (decision 25) the border also
  * steps aside above the ice-sheet bed wherever Everwinter has taken the column over ({@code everwinter}), so
  * the Everwinter rule paints it, and gives the columns just beyond patchy frost ({@code fringe}, measured on the
- * full terrain height {@code cover}).
+ * full terrain height {@code cover}). Likewise it steps aside above the rock wherever a Howling Canyon glacier lies on
+ * the mountain (decision 33: {@code canyon}, rock top {@code canyon_bed}).
  */
 public record BorderMaterialRule(DensityFunction border, DensityFunction surface, DensityFunction exteriorFloor,
                                  DensityFunction fringe, DensityFunction cover, DensityFunction everwinter,
-                                 DensityFunction iceBase) implements MaterialRule {
+                                 DensityFunction iceBase, DensityFunction canyon, DensityFunction canyonBed) implements MaterialRule {
     public static final MapCodec<BorderMaterialRule> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             DensityFunction.CODEC.fieldOf("border").forGetter(BorderMaterialRule::border),
             DensityFunction.CODEC.fieldOf("surface").forGetter(BorderMaterialRule::surface),
@@ -29,7 +30,9 @@ public record BorderMaterialRule(DensityFunction border, DensityFunction surface
             DensityFunction.CODEC.optionalFieldOf("fringe", DensityFunctions.zero()).forGetter(BorderMaterialRule::fringe),
             DensityFunction.CODEC.optionalFieldOf("cover", DensityFunctions.zero()).forGetter(BorderMaterialRule::cover),
             DensityFunction.CODEC.optionalFieldOf("everwinter", DensityFunctions.zero()).forGetter(BorderMaterialRule::everwinter),
-            DensityFunction.CODEC.optionalFieldOf("ice_base", DensityFunctions.zero()).forGetter(BorderMaterialRule::iceBase)
+            DensityFunction.CODEC.optionalFieldOf("ice_base", DensityFunctions.zero()).forGetter(BorderMaterialRule::iceBase),
+            DensityFunction.CODEC.optionalFieldOf("canyon", DensityFunctions.zero()).forGetter(BorderMaterialRule::canyon),
+            DensityFunction.CODEC.optionalFieldOf("canyon_bed", DensityFunctions.zero()).forGetter(BorderMaterialRule::canyonBed)
     ).apply(i, BorderMaterialRule::new));
 
     @Override
@@ -41,12 +44,16 @@ public record BorderMaterialRule(DensityFunction border, DensityFunction surface
         var coverHeight = context.getDensitiesInChunk(cover, true);
         var owned = context.getDensitiesInChunk(everwinter, true);
         var bed = context.getDensitiesInChunk(iceBase, true);
+        var glacier = context.getDensitiesInChunk(canyon, true);
+        var glacierBed = context.getDensitiesInChunk(canyonBed, true);
         long seed = context.getOrCreateRandomFactory(
                 Identifier.fromNamespaceAndPath("cronusfantasyterrain", "border_palette")).fromHashOf("patches").nextLong();
         return (x, y, z) -> {
             if (borderMask.get() <= RegionLayout.BORDER_THRESHOLD) return null;
             // Everwinter's ground on the mountain foot: the Everwinter rule paints it, rock stays below.
             if (owned.get() >= 0.5f && y >= bed.get()) return null;
+            // A Howling Canyon glacier on the mountain: the canyon rule paints its ice, rock stays below.
+            if (glacier.get() >= 0.5f && y >= glacierBed.get()) return null;
             double fringeGrowth = growth.get();
             int top = (int) Math.ceil(fringeGrowth > 0 ? coverHeight.get() : surfaceHeight.get()) - 1;
             int floor = Math.min(top, (int) exposedFloor.get());

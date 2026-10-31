@@ -28,7 +28,7 @@
             "minecraft:ice_spikes",
             "cronusfantasyterrain:everwinter",
             "minecraft:snowy_taiga",
-            "minecraft:frozen_river"
+            "cronusfantasyterrain:howling_canyon"
           ],
           "mountain_biome": "cronusfantasyterrain:region_border",
           "type": "cronusfantasyterrain:regions",

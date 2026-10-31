@@ -7,4 +7,4 @@ Preset key and region index: Not assigned; not in the world preset.
 Design
 Not yet specified: terrain, materials, climate, biome pool, vegetation, structures and mobs.
 
-Border mountains are shared by all regions and frozen; see docs/extra/project_notes.txt.
+Border mountains are shared by all regions; since 2026-10-30 they may be changed where a biome needs it (decision 34); see docs/extra/project_notes.txt.

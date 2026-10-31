@@ -1,8 +1,8 @@
 Frozen Wastes
 Recorded: 2026-10-10
-Updated: 2026-10-16
+Updated: 2026-10-30
 
-Status: Implemented theme; one custom biome (Everwinter) plus vanilla placeholders.
+Status: Implemented theme; two custom biomes (Everwinter, Howling Canyon) plus vanilla placeholders.
 Preset key: frozen_wastes
 Region index: 0
 
@@ -14,24 +14,26 @@ Biome pool (five biomes; each forms exactly one district per region)
 - minecraft:ice_spikes (placeholder)
 - cronusfantasyterrain:everwinter (custom, slot 2; see docs/biomes/everwinter.txt)
 - minecraft:snowy_taiga (placeholder)
-- minecraft:frozen_river (placeholder)
+- cronusfantasyterrain:howling_canyon (custom, slot 4; replaced the Frozen River placeholder on 2026-10-17; see docs/biomes/howling_canyon.txt)
 
 Implemented custom biomes
 - Everwinter (2026-10-16, reworked up to 2026-10-17): rolling, ridged snow ground with drift fields and rarer big snow/ice hills that grow out of it, a few ice cliffs and deep crevasses, two or three serac fields per biome, each a group of 4-7 huge pieces of the glacier ground broken off and tilted 5-30 degrees (low end sunk below the ground, high end a sheer ice face), split by deep tears or plain snow ground, rare thick ice spires (some curved), no natural water (dry caves), occasional deepslate outcrops; smooth transitions in sheltered stretches, harsh edges elsewhere; glacier ice under the snow, stone/deepslate below.
+  Everwinter's terrain is frozen since 2026-10-17 (decision 26): change it only on explicit request.
+- Howling Canyon (2026-10-17, reworked the same day; overhauled to natural shapes on 2026-10-30, decision 32): open snow ground at about Y=66 with a frozen river (snow-covered floes) winding through it in uneven bends and out of the biome at both ends, between separate, irregularly scattered glacier massifs of very different sizes and shapes, each rising in tiers of sheer, fluted ice cliffs (flat walls in 2-3 steps) to an off-centre summit (up to about Y=153), with gaps of ground between them and some saddles at the first or second tier. Towards the border mountains the massifs become glaciers coming down from them (decision 33, ice on the unchanged rock). Stone and deepslate below the ice. Not committed yet.
 
 Planned custom biomes
 - Frostscar: large height differences with valleys, canyons, cliffs and steep mountains; mostly deepslate under snow, with ice-and-snow glaciers. Design only; see docs/biomes/frostscar.txt.
 
 Earlier concepts
-- Ice Desert: Test World terrain prototype, not a biome. See docs/biomes/ice_desert.txt.
+- Ice Desert: terrain prototype of the removed Test World preset, not a biome. See docs/biomes/ice_desert.txt.
 
 Current generation
-Standard region behavior (see docs/regions.md): seeded rounded-hexagon regions about 3,400 blocks across, shared Region Border mountains at region edges. Everwinter adds its own terrain and materials; the placeholder biomes keep the plain interior around Y=75-85.
+Standard region behavior (see docs/regions.md): seeded rounded-hexagon regions about 3,400 blocks across, shared Region Border mountains at region edges. Everwinter and Howling Canyon add their own terrain and materials; the placeholder biomes keep the plain interior around Y=75-85.
 
 Still to design
 The remaining custom biomes (replacing the placeholders), vegetation, structures and mobs.
 
-Border mountains are shared by all regions and frozen; see docs/extra/project_notes.txt.
+Border mountains are shared by all regions; since 2026-10-30 they may be changed where a biome needs it (decision 34); see docs/extra/project_notes.txt.
 
 Sources (relative to repository root)
 src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json

@@ -242,6 +242,20 @@ tasks.register('everwinterPreview', JavaExec) {
     args layout.buildDirectory.file('reports/biomes/everwinter-map.png').get().asFile.absolutePath
     systemProperty 'java.awt.headless', 'true'
 }
+tasks.register('howlingCanyonTest', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.HowlingCanyonTest'
+    workingDir = layout.projectDirectory.asFile
+}
+tasks.named('check') { dependsOn tasks.named('howlingCanyonTest') }
+tasks.register('howlingCanyonPreview', JavaExec) {
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'c.cronus.fantasyterrain.worldgen.HowlingCanyonPreview'
+    args layout.buildDirectory.file('reports/biomes/howling-canyon-map.png').get().asFile.absolutePath
+    systemProperty 'java.awt.headless', 'true'
+}
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {

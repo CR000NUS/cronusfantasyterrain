@@ -1,0 +1,7 @@
+{
+  "type": "cronusfantasyterrain:howling_canyon_palette",
+  "canyon": "cronusfantasyterrain:howling_canyon_member",
+  "surface": "cronusfantasyterrain:biome_height",
+  "feature": "cronusfantasyterrain:howling_canyon_feature",
+  "bed": "cronusfantasyterrain:howling_canyon_bed"
+}

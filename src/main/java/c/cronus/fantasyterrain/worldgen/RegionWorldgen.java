@@ -27,6 +27,7 @@ public final class RegionWorldgen {
         MATERIALS.register("border_palette", () -> BorderMaterialRule.CODEC);
         MATERIALS.register("region_basin", () -> BasinMaterialRule.CODEC);
         MATERIALS.register("everwinter_palette", () -> EverwinterMaterialRule.CODEC);
+        MATERIALS.register("howling_canyon_palette", () -> HowlingCanyonMaterialRule.CODEC);
         FEATURES.register("everwinter_dry", () -> EverwinterDryFeature.CODEC);
     }
     public static void register(IEventBus bus) {

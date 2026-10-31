@@ -16,7 +16,7 @@ Still to design
 Elevation ranges, feature sizes, glacier distribution, vegetation, structures and mobs.
 
 Note
-This describes Frostscar's own biome terrain. It does not change the frozen region border mountains.
+This describes Frostscar's own biome terrain. Changes to the border mountains where Frostscar meets them are allowed if the biome needs them (decision 34).
 
 Sources
 User-provided biome design on 2026-10-12.

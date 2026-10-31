@@ -52,6 +52,8 @@ public final class BorderChunkMaterials {
         var functions = level.registryAccess().lookupOrThrow(Registries.DENSITY_FUNCTION);
         var fringe = functions.getValue(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "everwinter_fringe"));
         var everwinter = functions.getValue(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "everwinter_member"));
+        // Howling Canyon's glaciers on the mountain (decision 33): columns they lie on keep the canyon's ice.
+        var canyon = functions.getValue(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "howling_canyon_member"));
         long seed = random.getOrCreateRandomFactory(Identifier.fromNamespaceAndPath("cronusfantasyterrain", "border_palette"))
                 .fromHashOf("patches").nextLong();
         int minX = chunk.getPos().getMinBlockX(), minZ = chunk.getPos().getMinBlockZ();
@@ -71,6 +73,7 @@ public final class BorderChunkMaterials {
             // Same column test as BorderMaterialRule; foothill columns keep region stone above the basin.
             if (random.sampleBlockValueUncached(router.erosion(), bx, 0, bz) <= RegionLayout.BORDER_THRESHOLD) continue;
             if (everwinter != null && random.sampleBlockValueUncached(everwinter, bx, 0, bz) >= 0.5f) continue;
+            if (canyon != null && random.sampleBlockValueUncached(canyon, bx, 0, bz) >= 0.5f) continue;
             int top = tops[z * 16 + x];
             int left = x > 0 ? tops[z * 16 + x - 1] : neighborTop(level, bx - 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx - 1, 0, bz)));
             int right = x < 15 ? tops[z * 16 + x + 1] : neighborTop(level, bx + 1, bz, surface(random.sampleBlockValueUncached(router.chunkSurfaceLevel(), bx + 1, 0, bz)));

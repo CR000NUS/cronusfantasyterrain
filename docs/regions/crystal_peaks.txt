@@ -1,6 +1,6 @@
 Crystal Peaks
 Recorded: 2026-10-10
-Updated: 2026-10-15
+Updated: 2026-10-26
 
 Status: Implemented theme with vanilla placeholder biomes.
 Preset key: crystal_peaks
@@ -16,12 +16,12 @@ Biome pool (vanilla placeholders)
 - minecraft:windswept_forest
 
 Current generation
-Standard region behavior (see docs/regions.md): seeded regions about 3,072 blocks across, interior terrain around Y=75-85, shared Region Border mountains at region edges. No region-specific terrain, vegetation, structures or mobs yet.
+Standard region behavior (see docs/regions.md): seeded rounded-hexagon regions about 3,400 blocks across, interior terrain around Y=75-85, shared Region Border mountains at region edges. No region-specific terrain, vegetation, structures or mobs yet.
 
 Still to design
 Final custom biomes, terrain, vegetation, structures and mobs.
 
-Border mountains are shared by all regions and frozen; see docs/extra/project_notes.txt.
+Border mountains are shared by all regions; since 2026-10-30 they may be changed where a biome needs it (decision 34); see docs/extra/project_notes.txt.
 
 Sources (relative to repository root)
 src/main/resources/data/cronusfantasyterrain/worldgen/world_preset/regions.json

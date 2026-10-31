@@ -1,10 +1,10 @@
 Project notes and standing decisions
 Recorded: 2026-10-10
-Updated: 2026-10-16
+Updated: 2026-10-30 (decision 34)
 
 STANDING DECISIONS (in force)
 
-1. Border terrain is frozen (2026-10-10)
+1. Border terrain is frozen (2026-10-10; lifted 2026-10-30, decision 34)
 The user said: "The terrain of the border is fine now. Do NOT change it from now on until i specifically say otherwise. If you have to change it for a reason, then first tell me so before actually changing it."
 This covers the border mountain shape: RegionLayout terrain, border width, region partition and terrain density outputs. Material-only changes need their own explicit authorization.
 Revised on request 2026-10-15 (decisions 6 and 7); the freeze applies to the revised shape.
@@ -144,6 +144,68 @@ The fringe of decision 24 (scattered ice chunks and sheets on the flat fading st
 - Broad glacier tongues (5-14 blocks, sheer edges) on top near the mountains. Everwinter's materials take over the border columns where its relief is strong (border rule steps aside above the ice-sheet bed, repaint skips them); patchy frost reaches 80 blocks further up.
 - Never place features as isolated points on otherwise untouched ground; extend the biome's own terrain instead.
 
+26. Everwinter's terrain is frozen (2026-10-17)
+The user said: "Now that the 'Everwinter' biome is done so far, i want to put up the same rule as for the region border - Do not change anything on it's terrain unless i specifically tell you to change something. If you have to do changes that include other biomes, tell me about it first."
+- Covers Everwinter's terrain and everything that shapes it: EverwinterTerrain, EverwinterColumns, EverwinterGroups, EverwinterPalette, its border transition (decisions 24-25) and its biome file. Change it only on explicit request.
+- Any change that involves other biomes (pool slots, the shared district layout, shared code paths that would alter another biome's output) must be explained to the user and agreed before it is made.
+
+27. Howling Canyon, second custom Frozen Wastes biome (2026-10-17)
+The user asked for "Howling Canyon": "made up of snow and ice in a realistic and natural way. In the underground will be stone and deepslate." References: concept art of a frozen canyonland (tableland of glacier ice, winding canyon with a broken frozen river, tiers of sheer fluted ice cliffs, side canyons, mesas), to be "a bit wider"; and a Minecraft badlands canyon (wide winding valley, flat floor with a river, terraced slopes, table mountains) whose terrain, not its theme, should be represented.
+- Pool: asked first (decision 26); the user chose to replace the Frozen River placeholder (slot 4), so the pool stays at five and Everwinter's district is unchanged.
+- Implemented as cronusfantasyterrain:howling_canyon: tableland about Y=120-130 with mesas to about Y=150, one wide meandering main canyon per district (floor about Y=66, 52-108 blocks wide, frozen river) and about three side canyons, walls in three tiers of sheer ice cliffs with snowy benches; glacier ice strata above stone/deepslate. See docs/biomes/howling_canyon.txt.
+- Its own code path in BiomeTerrainFunction (HowlingCanyonColumns); Everwinter's columns still come from EverwinterColumns alone and are unchanged (howlingCanyonTest checks that the canyon never claims an Everwinter column). Relief is zero in every border column, so the borders are untouched (decision 1).
+
+28. Open Howling Canyon with gaps (2026-10-17)
+After the in-game test of decision 27 the user showed the main canyon ending in a stepped box-canyon head: "Change the Howling Canyon biome so that it never has these closed off rivers and overall is not this closed off. At the end of the rivers, it should always be open so the frozen river can 'flow' into other biomes. Also create a handful of gaps into the canyon. Some going down to the first layer, some the second and some all the way to the ground."
+- No closed ends: the main canyon runs right through the district and out at both ends, preferring ends that open into neighbouring biomes (about 93%; the rest open towards the mountain foot). The floor and the frozen river run to the biome edge, the floor rising smoothly to the neighbouring ground (tiers are measured from the rising floor, so the floor is never stepped). Side canyons also run out of the biome into a neighbouring one.
+- 4-7 gaps per district: gullies 16-32 blocks wide through the main canyon's walls, down to the floor, the first or the second tier (evenly split), climbing gently outwards onto the tableland.
+- The river stops at the biome boundary; continuing it into neighbouring biomes would change them (decision 26) and was not done. Everwinter and the borders are untouched.
+
+29. Howling Canyon as separate glacier massifs (2026-10-17)
+After the in-game test of decision 28 the user rejected the two long, continuous terraced walls along the river: "I said to make gaps in between the canyon! Instead of 2 giant fucking glacier walls left and right of the fucking river - create 'mountain-like' canyon walls!" Sketches: not nested contour lines running parallel to the river; instead the river winding through open ground between separate, lobed glacier masses, each with nested contour lines inside, ground between them.
+- The tableland, continuous canyon walls, side canyons and cut-in gullies are gone. Open snow ground (about Y=66) with the river; separate glacier massifs (one per cell of a jittered 300-block grid, rounded, lobed, often elongated) rise like mountains in nested tiers of sheer ice cliffs from their outline to their own top tier (one to four tiers).
+- Neighbouring massifs never merge: gaps of ground between them (about 60%) or saddles at the first or second tier (about 40%), which keeps the request of decision 28 for gaps down to the ground, the first and the second layer. A ground strip 52-108 blocks wide lines the river; along it a gap between massifs comes about every 280 blocks.
+- River, open ends, edge fade, materials and biome settings as in decisions 27-28. Everwinter and the borders are untouched.
+- Do not go back to continuous walls along the river.
+
+30. Columnar cliff faces in Howling Canyon (2026-10-17)
+The user liked the massif layout ("The biome looks good. Don't change the terrain itself") and asked only for different cliff faces: not flat, straight, sheer walls but walls with steps (screenshots).
+- First attempt rejected: random one-block ice columns of different heights at the foot of every cliff. "I ASKED TO SIMPLY HAVE THE WALLS HAVE SOME STEPS IN THEM LIKE 2 OR 3! NOT BE STRAIGHT FUCKING FLAT OR JAGGED AND UNPASSABLE! ... MAKE THE WALLS FLAT BUT ADD SIMPLE DAMN STEPS!"
+- Final: every tier cliff (the first one up from the ground included) is a flat wall in 2 or 3 even steps (fixed per massif and tier), sheer pieces of wall with ledges about 1-2 blocks deep between them. The fine 4-block jitter of the cliff lines was removed so walls and ledges stay flat and even. Massif layout, tiers, gaps, river and materials unchanged.
+- Never add random or jagged detail to the walls.
+- Second report the same day: "LITERALLY FUCKING NOTHING HAS CHANGED FROM THE FLAT WALLS BEFORE! FIND OUT WHAT CAUSES THESE FLAT WALLS AND FIX THEM" (screenshot: two tall, flat, sheer walls along the river). Cause, measured by scanning the terrain for drops over 20 blocks (813 found): not the tier cliffs but (a) saddles switched on with a hard edge, ground on one side and the full saddle height (up to about 55 blocks) on the other, cut off straight along the river's ground strip; (b) the gap between massifs was measured only against the second-nearest massif centre, so where that switched the field jumped by up to 60 blocks; (c) saddle passes depended on which massif owned the column. Fix: saddles rise from their edge in the same stepped cliffs; gaps are measured against every neighbour; each saddle depends only on the two massifs it joins; each cliff gets 25% of its tier band for its steps so ledges stay at least about a block deep. Result: no drop over 20 blocks anywhere (howlingCanyonTest checks it). Massif layout unchanged apart from slightly smaller massifs where three meet (the old measurement overstated their room).
+
+31. Natural, irregular terrain shapes (2026-10-27)
+The user said: "Whenever i want terrain to be generated, please do NOT make any terrain symetrical or go mathmatical looking lines. For example when i say i want a hill, please make these hills "random" looking in terms of blocks like do not make hill tops a perfect circle or a perfect square or anything but as realistic as possible looking."
+- Applies to all terrain generated from now on, in every biome and for every landform the user asks for (hills, mountains, massifs, plateaus, cliffs, valleys, canyons, rivers, piles, plates and so on).
+- No symmetrical or geometric-looking shapes: no perfect circles, squares, ellipses or regular polygons (outlines, tops, plateaus or rings), no ruler-straight lines or edges, no concentric rings at even spacing, no features repeated at an even spacing or in a visible grid.
+- Make every landform look as realistic as possible instead: irregular outlines that vary in radius with direction and at several scales, tops and peaks off-centre, slopes of different steepness on different sides, sizes, heights and spacing varied from one landform to the next, nothing a mirror or rotated copy of its neighbour.
+- "Random" means natural and irregular, not noisy or jagged: it does not undo decisions 23 and 30. Where the user asks for something plain (flat walls with 2-3 even steps, plain ground between plates), keep it plain and simple, but its outline and its course across the land still follow natural, irregular lines.
+- This is a rule for new work and for changes the user asks for. It does not by itself authorize changes to frozen terrain (borders, decision 1; Everwinter, decision 26).
+
+32. Howling Canyon overhauled to natural shapes (2026-10-30)
+Howling Canyon (decisions 27-30) was built before decision 31. Asked whether to leave it or bring it in line, the user said: "Please overhaul the entire Howling Canyon biome with the new 'natural' rule." Also: "Don't commit Howling Canyon yet."
+- Kept: the concept the user approved (separate glacier massifs, gaps of ground and saddles at the first or second tier, open ground along the river, the river open at both ends, flat cliff walls in 2-3 even steps, materials and biome settings). Everwinter and the borders are untouched (everwinterTest and the border checks give the same results as before).
+- Massifs: no visible grid (sites anywhere in their 300-block cell, sizes about 125-275 blocks in radius), outlines varying with direction at several scales (no ellipses), curved dividing lines between neighbours (bigger massifs claim more room), broadly rounded corners, narrow parts pulled back (no needle spurs, fins or lone knobs).
+- Tiers: an off-centre summit (about 40% of massifs with a lower second summit), steep near side and gentle far side, profile varying per massif, tier heights varying across the land, so the rings are neither concentric nor evenly spaced. A minimum climb keeps the far-side cliffs sheer.
+- Saddles only join massifs that face each other (no free-standing ridges across empty cells). The fine 10-block wobble of the cliff lines was dropped: it frayed the cliffs along narrow ridge crests.
+- River: bends of uneven length and swing plus a slow drift (no sine wave).
+- howlingCanyonTest also checks the natural shapes now (off-centre tops, outlines varying with direction, varied sizes and spacing, uneven river bends) besides the old checks (no drop over 20 blocks, gaps, open river, materials).
+
+33. Howling Canyon glaciers coming down from the border mountains (2026-10-30)
+The user showed a Howling Canyon massif whose tiers smeared into a long smooth slope down to flat ground before the border mountain and asked to change the transition between Howling Canyon and the Region Border.
+- First attempt rejected the same day: an icefall (the glacier broken into tilted slabs, blades and crevasses before the mountain, climbing onto the slope, with outlets where the rock was "exploded open"). The user: "It does not look good. Revert the changes and forget about the broken up, jagged glacier parts." It was reverted completely. Do not bring back broken, jagged ice or broken-open rock there.
+- Final, after a reference image (a glacier coming down from a mountain range as one big ice body, ending in a tall ice wall above a flat valley): "Imagine the mountains in the back are the border and the glacier in the front is coming down from it and turns into the canyon walls."
+- Near the mountains (from 150 blocks before the border mask begins) every massif reaches out to them and becomes the tongue of a glacier: its surface rises from the massif's top tier towards the mountains in the canyon's own benches and flat stepped walls (decision 30), its sides and front are the canyon walls, and on the mountain it continues as a sheet of ice (10-22 blocks) on top of the unchanged rock, thinning out unevenly 110-190 blocks into the belt. Gaps between massifs, empty cells and the river's strip stay open to the mountain foot (about half of the ground before the mountains).
+- Explicit border change (ice on the mountain approved by the user for this transition; the rock itself is not changed): BorderMaterialRule steps aside above the rock where the canyon's ice lies (optional canyon/canyon_bed inputs in region_border.json), BorderChunkMaterials skips those columns. Everything else about the borders, and Everwinter, is unchanged (borderPaletteTest, regionLayoutTest and everwinterTest give the same results).
+- howlingCanyonTest checks it: glaciers before the mountains, high, stepped walls without drops over 20 blocks, ice on the mountain within its reach, the rock never cut, nothing beyond the reach.
+- Connection attempt rejected the same day: the user showed a trench between a glacier wall and the ice on the mountain ("the canyon glacier that's next to the border should always be connected to the border in some way"). Merging all glacier tongues into one continuous glacier apron along the mountain foot was rejected: "Never did i ever tell you to make the glacier canyon wall that is next to the region border one continous giant wall! Revert this immediately to how it was before!" Reverted exactly; the glaciers stay separate tongues. Never merge them into one continuous wall along the mountains. The trench problem itself is still open (causes found: massif cells right at the mountains form slivers of their own with a gap along the mountain foot; tongues narrow or end before the mountain and sink).
+
+34. Border freeze lifted (2026-10-30)
+The user: "Remove the block from the border region so that the border can be edited however it needs to be for the biomes to look proper."
+- Decision 1 (border freeze) is lifted. The borders (mountain shape, region partition, materials, snow, basin, border biome) may be changed wherever a biome needs it to look right. Elsewhere the existing border design stays the default, and every border change is mentioned to the user.
+- Everwinter's freeze (decision 26) and the natural-terrain rule (decision 31) are unchanged.
+
 DECISION HISTORY
 
 2026-10-10  Border terrain accepted and frozen (decision 1).
@@ -163,6 +225,11 @@ DECISION HISTORY
 2026-10-16  Material-only change requested by the user: snow transition reaches further down (first patches Y=179 instead of 191, band 36 instead of 24 blocks, full cap unchanged at Y=264). Geometry untouched.
 2026-10-16  Borders committed as update_03_borderfin. Border freeze renewed and widened to all border aspects, materials and snow included (decision 1).
 2026-10-16  Everwinter implemented in the Frozen Wastes (decision 13): biome terrain layer, Everwinter relief and materials, pool grown to five entries. Borders untouched.
+2026-10-17  Howling Canyon cliffs: random ice columns tried and rejected; now flat walls in 2-3 even steps (decision 30). Layout unchanged; Everwinter and borders untouched.
+2026-10-17  Howling Canyon rebuilt as separate glacier massifs with ground gaps and saddles between them, open ground along the river (decision 29). Everwinter and borders untouched.
+2026-10-17  Howling Canyon opened up: canyons run out of the biome at both ends, smooth floor to the edge, 4-7 gaps through the walls (decision 28). Everwinter and borders untouched.
+2026-10-17  Howling Canyon implemented in Frozen Wastes pool slot 4, replacing the Frozen River placeholder on the user's choice (decision 27). Everwinter and borders untouched.
+2026-10-17  Everwinter's terrain frozen on request (decision 26).
 2026-10-17  Everwinter's own terrain and glacier tongues fill the mountain foot instead of scattered chunks (decision 25). Other borders untouched.
 2026-10-17  Everwinter grows onto the border mountains on its side: snow, glacier ice and ice chunks on the unchanged rock (decision 24, explicit border change). Other borders untouched.
 2026-10-17  Plain ground with gentle rises between plates, no spires in plate groups (decision 23). Borders untouched.
@@ -176,13 +243,18 @@ DECISION HISTORY
 2026-10-16  Rougher Everwinter (decision 15): more elevation, snow piles, big snow/ice hills, ice cliffs, deep crevasses, serac fields. Borders untouched.
 2026-10-16  Biome districts (decision 14): every pool biome exactly once per region as one large district; pools 4-6 distinct biomes. Borders untouched.
 2026-10-15  Documentation cleaned up. docs/biomes/jagged_peaks.txt removed (superseded by region_border.txt).
+2026-10-26  Documentation corrected on request: the Test World preset and the MDK example code are gone (removed in update_03.01.01), PEAK_LIMIT is 310, regions are about 3,400 blocks across, Howling Canyon palette comments describe the massifs instead of the old tableland. No generation changes.
+2026-10-27  Standing rule recorded on request: all generated terrain looks natural and irregular, never symmetrical or mathematical (no perfect circles, squares or straight lines; decision 31). No generation changes.
+2026-10-30  Border freeze lifted on request (decision 34). Howling Canyon glaciers merged into one continuous wall along the mountains to close a trench: rejected and reverted (decision 33). Not committed yet.
+2026-10-30  Howling Canyon to border transition (decision 33): a broken-up icefall with exploded rock was tried and rejected; glaciers now come down from the mountains (ice on the unchanged rock) and turn into the canyon walls. Other borders and Everwinter untouched. Not committed yet.
+2026-10-30  Howling Canyon overhauled on request to follow decision 31: irregular massif layout, outlines and sizes, off-centre summits, uneven tiers, curved gaps, uneven river bends; concept, flat stepped walls and materials kept (decision 32). Not committed yet on the user's request. Everwinter and borders untouched.
 
 PROJECT STATUS
 
 - Eleven regions confirmed. Five are generated with vanilla placeholder pools: Frozen Wastes, Cold Meadows, Scorched Lands, Verdant Valley, Crystal Peaks. Six are planned with no design yet: Blooming Highlands, Dry Dunes, Enchanted Groves, Land of the Giants, Misty Marshes, Shadow Wilds.
-- Twenty vanilla placeholder biomes (four per region) plus two custom biomes: Region Border and Everwinter (Frozen Wastes).
-- Frostscar is a planned custom biome for Frozen Wastes. Ice Desert is an earlier Test World prototype, not a biome.
-- Biome terrain exists for Everwinter only. Not implemented: custom cave biomes, mountain passes, oceans or coastlines. The Nether and End are vanilla.
+- Nineteen vanilla placeholder biomes plus three custom biomes: Region Border, Everwinter and Howling Canyon (both Frozen Wastes; Everwinter frozen, decision 26).
+- Frostscar is a planned custom biome for Frozen Wastes. Ice Desert was a prototype in the earlier Test World preset (removed 2026-10-16), not a biome.
+- Biome terrain exists for Everwinter and Howling Canyon. Not implemented: custom cave biomes, mountain passes, oceans or coastlines. The Nether and End are vanilla.
 - Targets Minecraft 26.3, NeoForge 26.3.0.43-beta, Java 25.
 
 DOCUMENTATION LAYOUT

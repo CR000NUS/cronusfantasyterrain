@@ -1,6 +1,6 @@
 Region Border Mountains
 Recorded: 2026-10-12
-Updated: 2026-10-15
+Updated: 2026-10-30
 
 Biome ID: cronusfantasyterrain:region_border
 Region: Shared mountain belts between all regions.
@@ -10,7 +10,7 @@ Selection
 Used wherever the border mask (erosion channel) exceeds 0.12. Positions with a weaker nonzero mask (the foothills) take the neighboring region's biome.
 Border materials follow the same 0.12 test per column, not the per-block biome, so mountain columns never contain region stone.
 
-Terrain (frozen; changed on request 2026-10-15; see docs/extra/project_notes.txt)
+Terrain (changed on request 2026-10-15; frozen 2026-10-16 to 2026-10-30; since then it may be changed where a biome needs it, decision 34; see docs/extra/project_notes.txt)
 The shape comes from RegionLayout, not from this biome: one giant mountain range with many broad, rounded peaks. Most of the massif lies between Y=175 and Y=250; rare summits reach about Y=300 and rare deep valleys reach down to about Y=150.
 The mountains fill the space between the regions (rounded hexagons, about 1,700 blocks from centre to side) in fairly even belts of about 400 blocks foot to foot, including where three regions meet. The whole mountain front pushes up to 180 blocks into the regions in broad lobes and bays (decision 12, 2026-10-16). A short, steep ramp (about blocks 68–169 from the belt's outer edge, starting at the foothill rim) climbs from region ground onto the massif.
 No holes, lakes, canyons or cliffs at or below region ground. The ravine (minecraft:canyon) carver was removed; cave carvers remain.
@@ -34,6 +34,10 @@ Temperature 0.8, downfall 0.3, precipitation on. No freeze_top_layer feature, so
 Features
 Only the custom ore placements under cronusfantasyterrain:border/ore_*. They keep vanilla frequencies and height ranges, use deepslate ore variants, replace only deepslate/tuff and are discarded when exposed to air.
 No dirt, gravel, granite, diorite, andesite, sediment disks, lakes, springs, geodes, dungeons or vegetation. The borderFeatureTest Gradle task enforces this whitelist.
+
+Biome changes to the border (decision 34: allowed where a biome needs them; elsewhere the design above stays)
+- Everwinter (decisions 24-25, 2026-10-17): its terrain and glacier tongues run up the mountain foot on top of the rock; patchy frost beyond.
+- Howling Canyon (decision 33, 2026-10-30): its glaciers come down from the mountains: a sheet of ice 10-22 blocks thick on top of the unchanged rock, thinning out 110-190 blocks into the belt, only where a canyon massif lies near the mountains. BorderMaterialRule steps aside above the rock there (canyon / canyon_bed) and BorderChunkMaterials skips those columns. See docs/biomes/howling_canyon.txt.
 
 Implementation
 - BorderMaterialRule / BorderPalette choose the material. The border_exterior_floor density output (lowest neighboring surface) separates outdoor faces from buried rock; it does not change terrain.
